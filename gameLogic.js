@@ -2,12 +2,6 @@
 
 angular.module('myApp', []).factory('gameLogic', function () {
 
-  /** track total moves of the game (This is reserved for check for tie) */
-  var totalMove = 0;
-
-  /** store the winner*/
-  var winner = '';
-
   /** Returns the initial Connect6 board, which is a 19x19 matrix containing ''. */
   function getInitialBoard() {
     return [['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -31,26 +25,27 @@ angular.module('myApp', []).factory('gameLogic', function () {
             ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']];
   }
 
-  /**
-   * This function is reserved for add totalMove to track how many moves is been made since game started.
-   * Checking total moves is also an easier way to check tie.
-   */
-  function addTotalMove() {
-    totalMove++;
+  /** Returns an object contains come game data including the winner */
+  function getInitialGameData() {
+    return {
+      totalMove: 0,
+      winner: '',
+      moveIndex: 1 // set initial index to 1;
+    };
   }
 
   /** Return true if the game ended in a tie when there is no empty cells */
-  function isTie(board) {
+  function isTie(gameData) {
     //reserved for checking tie
-    //return totalMove === 361;
-    var i, j;
+    /*var i, j;
     for (i = 0; i < 19; i++) {
       for (j = 0; j < 19; j++) {
         if (board[i][j] === '') {
           return false;
         }
       }
-    }
+    }*/
+    return gameData.totalMove >= 361;
   }
 
   /** 
@@ -60,14 +55,13 @@ angular.module('myApp', []).factory('gameLogic', function () {
   function isWinner(board, row, col) {
     var cur = board[row][col];
     var i, j;
-
     //check row
     i = row - 1;
     j = row + 1;
-    while (board[i][col] === cur) {
+    while (i >= 0 && board[i][col] === cur) {
       i--;
     }
-    while (board[j][col] === cur) {
+    while (j < board.length && board[j][col] === cur) {
       j++;
     }
     if (j - i - 1 >= 6) {
@@ -77,10 +71,10 @@ angular.module('myApp', []).factory('gameLogic', function () {
     //check column
     i = col - 1;
     j = col + 1;
-    while (board[row][i] === cur) {
+    while (i >= 0 && board[row][i] === cur) {
       i--;
     }
-    while (board[row][j] === cur) {
+    while (j < board.length && board[row][j] === cur) {
       j++;
     }
     if (j - i - 1 >= 6) {
@@ -90,10 +84,10 @@ angular.module('myApp', []).factory('gameLogic', function () {
     //check main diagonal
     i = -1;
     j = 1;
-    while (board[row + i][col + i] === cur) {
+    while (row + i >= 0 && col + i >= 0 && board[row + i][col + i] === cur) {
       i--;
     }
-    while (board[row + j][col + j] === cur) {
+    while (row + j < board.length && col + j < board.length && board[row + j][col + j] === cur) {
       j++;
     }
     if (j - i - 1 >= 6) {
@@ -103,10 +97,10 @@ angular.module('myApp', []).factory('gameLogic', function () {
     //check back diagonal
     i = -1;
     j = 1;
-    while (board[row + i][col - i] === cur) {
+    while (row + i >= 0 && col - i < board.length && board[row + i][col - i] === cur) {
       i--;
     }
-    while (board[row + j][col - j] === cur) {
+    while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === cur) {
       j++;
     }
     if (j - i - 1 >= 6) {
@@ -121,47 +115,61 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Returns the move that should be performed when player
    * with index turnIndexBeforeMove makes a move in cell row X col.
    */
-  function createMove(board, row, col, turnIndexBeforeMove) {
+  function createMove(board, row, col, turnIndexBeforeMove, gameData) {
     if (board === undefined) {
       board = getInitialBoard();
+    }
+    if (gameData === undefined) {
+      gameData = getInitialGameData();
     }
     if (board[row][col] !== '') {
       throw new Error("One can only make a move in an empty position!");
     }
-    if (winner !== '' || isTie(board)) {
+
+    //If the cell is empty, it will never be a tie, thus just check winner
+    if (gameData.winner !== '') {
       throw new Error("Can only make a move if the game is not over!");
     }
-    var boardAfterMove = angular.copy(board);
-    var firstOperation;
 
-    //Player has two moves each turn, thus give first two turns to 'X' and the other two as 'O' 
-    //The first turn only has one move, thus we could give the initial turn index as 1 or 3.
-    boardAfterMove[row][col] = turnIndexBeforeMove === 0 || turnIndexBeforeMove === 1 ? 'X' : 'O';
+    var boardAfterMove = angular.copy(board);
+    var gameDataAfterMove = angular.copy(gameData);
+    var firstOperation;
+    var winner;
+
+    //Player has two moves each turn, thus give first two moves to 'X' and the other two as 'O'
+    //Each turn increase move index and mod 4.
+    //The first turn only has one move, thus we could give the initial move index as 1.
+    gameDataAfterMove.moveIndex = (gameDataAfterMove.moveIndex + 1) % 4;
+    gameDataAfterMove.totalMove++; // increase total moves;
+    boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
     winner = isWinner(boardAfterMove, row, col) ? boardAfterMove[row][col] : '';
-    if (winner !== '' || isTie(boardAfterMove)) {
+
+    if (winner !== '' || isTie(gameDataAfterMove)) {
       // Game over.
       firstOperation = {endMatch: {endMatchScores:
         (winner === 'X' ? [1, 0] : (winner === 'O' ? [0, 1] : [0, 0]))}};
     } else {
-      // Game continues. Each turn has two moves thus increase turn index and mod 4.
-      firstOperation = {setTurn: {turnIndex: (turnIndexBeforeMove + 1) % 4 }};
+      firstOperation = {setTurn: {turnIndex: (gameDataAfterMove.moveIndex === 0 || gameDataAfterMove.moveIndex === 1) ? 0 : 1 }};
     }
+    
+    gameDataAfterMove.winner = winner;
     return [firstOperation,
             {set: {key: 'board', value: boardAfterMove}},
-            {set: {key: 'delta', value: {row: row, col: col}}}];
+            {set: {key: 'delta', value: {row: row, col: col}}},
+            {set: {key: 'gameData', value: gameDataAfterMove}}];
   }
 
   /**
    * Returns all the possible moves for the given board and turnIndexBeforeMove.
    * Returns an empty array if the game is over.
    */
-  function getPossibleMoves(board, turnIndexBeforeMove) {
+  function getPossibleMoves(board, turnIndexBeforeMove, gameData) {
     var possibleMoves = [];
     var i, j;
     for (i = 0; i < 19; i++) {
       for (j = 0; j < 19; j++) {
         try {
-          possibleMoves.push(createMove(board, i, j, turnIndexBeforeMove));
+          possibleMoves.push(createMove(board, i, j, turnIndexBeforeMove, gameData));
         } catch (ignore) {
           // The cell in that position was full.
         }
@@ -179,7 +187,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
       var row = deltaValue.row;
       var col = deltaValue.col;
       var board = stateBeforeMove.board;
-      var expectedMove = createMove(board, row, col, turnIndexBeforeMove);
+      var gameData = stateBeforeMove.gameData;
+      var expectedMove = createMove(board, row, col, turnIndexBeforeMove, gameData);
       if (!angular.equals(move, expectedMove)) {
         return false;
       }
@@ -192,9 +201,9 @@ angular.module('myApp', []).factory('gameLogic', function () {
 
   return {
     getInitialBoard: getInitialBoard,
+    getInitialGameData: getInitialGameData,
     getPossibleMoves: getPossibleMoves,
     createMove: createMove,
-    isMoveOk: isMoveOk,
-    addTotalMove: addTotalMove
+    isMoveOk: isMoveOk
   };
 });

@@ -16,7 +16,6 @@ html, body {
 .b {
   border-bottom: 4pt solid black;
 }
-
 .slowlyAppear {
   -webkit-animation: slowlyAppear 0.5s linear; /* Chrome, Safari, Opera */
   animation: slowlyAppear 0.5s linear;
