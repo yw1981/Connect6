@@ -1,21 +1,42 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
+.backboard{
   height: 100%;
+  width: 100%;
 }
+
+#board{
+  position:absolute;
+  left:5%;
+  top:5%;
+  width:95%;
+  height:95%
+}
+
 .piece {
   position: absolute;
-  width: 60%;
-  top: 20%;
-  left: 20%;
+  width: 80%;
+  top: 10%;
+  left: 10%;
 }
+
+.cell {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
 .r {
-  border-right: 4pt solid black;
+  border-right: 2px solid black;
 }
 .b {
-  border-bottom: 4pt solid black;
+  border-bottom: 2px solid black;
 }
+.t {
+  border-top: 2px solid black;
+}
+.l {
+  border-left: 2px solid black;
+}
+
 .slowlyAppear {
   -webkit-animation: slowlyAppear 0.5s linear; /* Chrome, Safari, Opera */
   animation: slowlyAppear 0.5s linear;

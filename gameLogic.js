@@ -1,6 +1,6 @@
-'use strict';
-
 angular.module('myApp', []).factory('gameLogic', function () {
+
+  'use strict';
 
   /** Returns the initial Connect6 board, which is a 19x19 matrix containing ''. */
   function getInitialBoard() {

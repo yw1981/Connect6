@@ -1,17 +1,21 @@
-'use strict';
-
 angular.module('myApp')
-  .controller('Ctrl', function (
-    $window, $scope, $log, $timeout,
-    gameService, gameLogic, aiService, resizeGameAreaService
-  ) {
+  .controller('Ctrl', ['$window', '$scope', '$log', '$timeout',
+    'gameService', 'gameLogic', 'aiService', 'resizeGameAreaService',
+    function ($window, $scope, $log, $timeout,
+      gameService, gameLogic, aiService, resizeGameAreaService) {
+
+    'use strict';
+    
     resizeGameAreaService.setWidthToHeight(1);
 
     function sendComputerMove() {
-      gameService.makeMove(
-          aiService.createComputerMove($scope.board, $scope.turnIndex, $scope.gameData,
+      var possibleMoves = gameLogic.getPossibleMoves($scope.board, $scope.turnIndex, $scope.gameData);
+      var index = Math.floor((Math.random() * possibleMoves.length));
+      gameService.makeMove(possibleMoves[index]);
+      //gameService.makeMove(
+          //aiService.createComputerMove($scope.board, $scope.turnIndex, $scope.gameData,
               // 0.3 seconds for the AI to choose a move
-          {millisecondsLimit: 300}));
+          //{millisecondsLimit: 300}));
     }
 
     function updateUI(params) {
@@ -33,8 +37,8 @@ angular.module('myApp')
           && params.playersInfo[params.yourPlayerIndex].playerId === '') {
         $scope.isYourTurn = false; // to make sure the UI won't send another move.
 
-        // Wait 500 milliseconds until animation ends.
-        $timeout(sendComputerMove, 500);
+        // Wait 100 milliseconds until animation ends.
+        $timeout(sendComputerMove, 100);
       }
     }
 
@@ -61,9 +65,38 @@ angular.module('myApp')
     };
     $scope.getImageSrc = function (row, col) {
       var cell = $scope.board[row][col];
-      return cell === "X" ? "pieceX.png"
-          : cell === "O" ? "pieceO.png" : "";
+      return cell === "X" ? "black.png"
+          : cell === "O" ? "white.png" : "";
     };
+
+    $scope.getBoardImageSrc = function (row, col) {
+      if (row === 0 ) {
+        if (col === 0) {
+          return "boardImgs/topLeft.png";
+        } else if (col === 18) {
+          return "boardImgs/topRight.png";
+        } else {
+          return "boardImgs/top.png";
+        }
+      } 
+      if (row === 18 ) {
+        if (col === 0) {
+          return "boardImgs/bottomLeft.png";
+        } else if (col === 18) {
+          return "boardImgs/bottomRight.png";
+        } else {
+          return "boardImgs/bottom.png";
+        }
+      } 
+      if ( col === 0 && 0 < row && row < 18 ){
+        return "boardImgs/left.png";
+      }
+      if ( col === 18 && 0 < row && row < 18 ){
+        return "boardImgs/right.png";
+      }
+      return "boardImgs/cross.png";
+    };
+
     $scope.shouldSlowlyAppear = function (row, col) {
       return $scope.delta !== undefined
           && $scope.delta.row === row && $scope.delta.col === col;
@@ -76,4 +109,4 @@ angular.module('myApp')
       isMoveOk: gameLogic.isMoveOk,
       updateUI: updateUI
     });
-  });
+  }]);
