@@ -6,8 +6,8 @@
 
 .backboardScroll{
   position:absolute;
-  height: 170%;
-  width: 170%;
+  height: 160%;
+  width: 160%;
 }
 
 #background{
@@ -35,8 +35,8 @@
   position:absolute;
   left:0.6%;
   top:0.6%;
-  width:170%;
-  height:170%
+  width:160%;
+  height:160%
 }
 
 .click{
