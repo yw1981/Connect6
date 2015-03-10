@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Connect6</title>
+  <meta name="description" content="Connect6 game">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
+  <script src="gameLogic.js"></script>
+  <script src="game.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/alphaBetaService.js"></script>
+  <script src="aiService.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/resizeGameAreaService.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/gameService.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/messageService.js"></script>
+  <script src="http://yoav-zibin.github.io/emulator/stateService.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://yoav-zibin.github.io/emulator/main.css">
+  <link rel="stylesheet" type="text/css" href="game.css">
+</head>
+<body ng-cloak ng-controller="Ctrl">
+
+<div id="gameArea">
+  <div id="backgroundScroll">
+    <img class="backboardScroll" src="boardImgs/wood2.jpg"/>
+    <div id="boardScroll">
+    <div ng-repeat="row in [0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]"
+      style="position:absolute; top:{{row * 5.2 }}%; left:0; width:100%; height:5.2%;">
+      <div ng-repeat="col in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]"
+        style="position:absolute; top:0; left:{{col * 5.2}}%; width:5.2%; height:100%;"
+        ng-click="cellClicked(row, col)">
+        <img class="cell" ng-src="{{getBoardImageSrc(row, col)}}">
+        <img ng-class="{piece: true, slowlyAppear: shouldSlowlyAppear(row, col)}"
+          ng-show="shouldShowImage(row, col)"
+          ng-src="{{getImageSrc(row, col)}}" />
+        <div class="click"></div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
