@@ -48,7 +48,7 @@ angular.module('myApp')
     $scope.cellClicked = function (row, col) {
       $log.info(["Clicked on cell:", row, col]);
       if (!$scope.isYourTurn) {
-        return false;
+        return;
       }
       try {
         var move = gameLogic.createMove($scope.board, row, col, $scope.turnIndex,  $scope.gameData);
@@ -56,7 +56,7 @@ angular.module('myApp')
         gameService.makeMove(move);
       } catch (e) {
         $log.info(["Cell is already full in position:", row, col]);
-        return false;
+        return;
       }
     };
     
@@ -64,6 +64,7 @@ angular.module('myApp')
       var cell = $scope.board[row][col];
       return cell !== "";
     };
+
     $scope.getImageSrc = function (row, col) {
       var cell = $scope.board[row][col];
       return cell === "X" ? "black.png"
