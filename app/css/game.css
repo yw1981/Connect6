@@ -1,10 +1,10 @@
-.backboard{
+#backboard{
   position:absolute;
   height: 100%;
   width: 100%;
 }
 
-.backboardScroll{
+#backboardScroll{
   position:absolute;
   height: 160%;
   width: 160%;

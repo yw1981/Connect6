@@ -67,36 +67,36 @@ angular.module('myApp')
 
     $scope.getImageSrc = function (row, col) {
       var cell = $scope.board[row][col];
-      return cell === "X" ? "black.png"
-          : cell === "O" ? "white.png" : "";
+      return cell === "X" ? "imgsrc/black.png"
+          : cell === "O" ? "imgsrc/white.png" : "";
     };
 
     $scope.getBoardImageSrc = function (row, col) {
       if (row === 0 ) {
         if (col === 0) {
-          return "boardImgs/topLeft.png";
+          return "imgsrc/topLeft.png";
         } else if (col === 18) {
-          return "boardImgs/topRight.png";
+          return "imgsrc/topRight.png";
         } else {
-          return "boardImgs/top.png";
+          return "imgsrc/top.png";
         }
       } 
       if (row === 18 ) {
         if (col === 0) {
-          return "boardImgs/bottomLeft.png";
+          return "imgsrc/bottomLeft.png";
         } else if (col === 18) {
-          return "boardImgs/bottomRight.png";
+          return "imgsrc/bottomRight.png";
         } else {
-          return "boardImgs/bottom.png";
+          return "imgsrc/bottom.png";
         }
       } 
       if ( col === 0 && 0 < row && row < 18 ){
-        return "boardImgs/left.png";
+        return "imgsrc/left.png";
       }
       if ( col === 18 && 0 < row && row < 18 ){
-        return "boardImgs/right.png";
+        return "imgsrc/right.png";
       }
-      return "boardImgs/cross.png";
+      return "imgsrc/cross.png";
     };
 
     $scope.shouldSlowlyAppear = function (row, col) {
