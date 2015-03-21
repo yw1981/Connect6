@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('../package.json'),
+    pkg: grunt.file.readJSON('package.json'),
     jshint: {
       options: {
         curly: true,
@@ -35,11 +35,11 @@ module.exports = function(grunt) {
           browser: false, element: false, by: false, // Protractor
         },
       },
-      all: ['Gruntfile.js', '../test/karma.conf.js', '../test/protractor.conf.js', 'js/*.js', 'languages/*.js']
+      all: ['Gruntfile.js', 'test/karma.conf.js', 'test/protractor.conf.js', 'app/js/*.js', 'app/languages/*.js']
     },
     karma: {
       unit: {
-        configFile: '../test/karma.conf.js',
+        configFile: 'test/karma.conf.js',
         background: true,
         singleRun: false
       }
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
     // Run karma and watch files using:
     // grunt karma:unit:start watch
     watch: {
-      files: ['js/*.js'],
+      files: ['app/js/*.js'],
       tasks: ['jshint', 'karma:unit:run']
     },
     concat: {
@@ -56,8 +56,8 @@ module.exports = function(grunt) {
       },
       dist: {
         // Order is important! gameLogic.js must be first because it defines myApp angular module.
-        src: ['js/gameLogic.js', 'js/game.js', 'js/aiService.js'],
-        dest: 'dist/everything.js',
+        src: ['app/js/gameLogic.js', 'app/js/game.js', 'app/js/aiService.js'],
+        dest: 'app/dist/everything.js',
       },
     },
     uglify: {
@@ -66,15 +66,15 @@ module.exports = function(grunt) {
       },
       my_target: {
         files: {
-          'dist/everything.min.js': ['dist/everything.js']
+          'app/dist/everything.min.js': ['app/dist/everything.js']
         }
       }
     },
     processhtml: {
       dist: {
         files: {
-          'game.min.html': ['game.html'],
-          'gameScroll.min.html': ['gameScroll.html']
+          'app/game.min.html': ['app/game.html'],
+          'app/gameScroll.min.html': ['app/gameScroll.html']
         }
       }
     },
@@ -86,12 +86,12 @@ module.exports = function(grunt) {
             'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
             'http://yoav-zibin.github.io/emulator/dist/gameServices.min.js',
             'http://yoav-zibin.github.io/emulator/angular-translate/angular-translate.2.6.1.min.js',
-            'languages/en.js',
+            'app/languages/en.js',
             'http://yoav-zibin.github.io/emulator/main.css',
-            'dist/everything.min.js',
-            'css/game.css'
+            'app/dist/everything.min.js',
+            'app/css/game.css'
           ],
-          network: ['dist/everything.min.js.map', 'dist/everything.js'],
+          network: ['app/dist/everything.min.js.map', 'app/dist/everything.js'],
           timestamp: true
         },
         dest: 'game.appcache',
@@ -115,7 +115,7 @@ module.exports = function(grunt) {
     },
     protractor: {
       options: {
-        configFile: "../test/protractor.conf.js", // Default config file
+        configFile: "test/protractor.conf.js", // Default config file
         keepAlive: true, // If false, the grunt process stops when the test fails.
         noColor: false, // If true, protractor will not use colors in its output.
         args: {

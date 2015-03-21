@@ -1,8 +1,10 @@
-'use strict';
+angular.module('myApp').factory('aiService',
+  ["alphaBetaService", "gameLogic", 
+    function (alphaBetaService, gameLogic) {
 
-angular.module('myApp').factory('aiService', function (alphaBetaService, gameLogic) {
+  'use strict';
 
-  function getStateScoreForIndex0(move, playerIndex) {
+  function getStateScoreForIndex0(move) {
     if (move[0].endMatch) {
       var endMatchScores = move[0].endMatch.endMatchScores;
       return endMatchScores[0] > endMatchScores[1] ? Number.POSITIVE_INFINITY
@@ -40,10 +42,10 @@ angular.module('myApp').factory('aiService', function (alphaBetaService, gameLog
       getStateScoreForIndex0,
       // If you want to see debugging output in the console, then pass
       // getDebugStateToString instead of null
-      null,
+      window.location.search === '?debug' ? getDebugStateToString : null,
       alphaBetaLimits
     );
   }
 
   return {createComputerMove: createComputerMove};
-});
+}]);

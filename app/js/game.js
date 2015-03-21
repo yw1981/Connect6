@@ -1,16 +1,18 @@
 angular.module('myApp')
-  .controller('Ctrl', ['$window', '$scope', '$log', '$timeout',
-    'gameService', 'gameLogic', 'aiService', 'resizeGameAreaService',
-    function ($window, $scope, $log, $timeout,
-      gameService, gameLogic, aiService, resizeGameAreaService) {
+  .controller('Ctrl', ['$scope', '$log', '$timeout',
+    'gameService', 'stateService', 'gameLogic', 'aiService', 
+    'resizeGameAreaService', 
+    function ($scope, $log, $timeout,
+      gameService, stateService, gameLogic, aiService, 
+      resizeGameAreaService) {
 
     'use strict';
-    
+
     resizeGameAreaService.setWidthToHeight(1);
 
     function sendComputerMove() {
       var possibleMoves = gameLogic.getPossibleMoves($scope.board, $scope.turnIndex, $scope.gameData);
-      var index = Math.floor((Math.random() * possibleMoves.length));
+      var index = Math.floor(Math.random() * possibleMoves.length);
       gameService.makeMove(possibleMoves[index]);
       //gameService.makeMove(
           //aiService.createComputerMove($scope.board, $scope.turnIndex, $scope.gameData,
@@ -33,8 +35,8 @@ angular.module('myApp')
       $scope.turnIndex = params.turnIndexAfterMove;
 
       // Is it the computer's turn?
-      if ($scope.isYourTurn
-          && params.playersInfo[params.yourPlayerIndex].playerId === '') {
+      if ($scope.isYourTurn && 
+          params.playersInfo[params.yourPlayerIndex].playerId === '') {
         $scope.isYourTurn = false; // to make sure the UI won't send another move.
 
         // Wait 100 milliseconds until animation ends.
@@ -42,8 +44,7 @@ angular.module('myApp')
       }
     }
 
-    // Before getting any updateUI, we show an empty board to a viewer (so you can't perform moves).
-    updateUI({stateAfterMove: {}, turnIndexAfterMove: 0, yourPlayerIndex: -2});
+    window.e2e_test_stateService = stateService;
 
     $scope.cellClicked = function (row, col) {
       $log.info(["Clicked on cell:", row, col]);
@@ -100,8 +101,8 @@ angular.module('myApp')
     };
 
     $scope.shouldSlowlyAppear = function (row, col) {
-      return $scope.delta !== undefined
-          && $scope.delta.row === row && $scope.delta.col === col;
+      return $scope.delta !== undefined && 
+          $scope.delta.row === row && $scope.delta.col === col;
     };
 
     gameService.setGame({
