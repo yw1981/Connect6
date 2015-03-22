@@ -8,6 +8,6 @@ exports.config = {
   baseUrl: 'http://localhost:9000/test/',
   framework: 'jasmine',
   jasmineNodeOpts: {
-    defaultTimeoutInterval: 60000
+    defaultTimeoutInterval: 150000
   }
 };

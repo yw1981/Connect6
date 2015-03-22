@@ -9,11 +9,11 @@ describe('Connect6', function() {
   });
 
   function getDiv(row, col) {
-    return element(by.id('e2e_test_div_' + row + 'x' + col));
+    return element(by.id('e2e_test_div_x' + row + 'x' + col));
   }
 
   function getImg(row, col) {
-    return element(by.id('e2e_test_img_' + row + 'x' + col));
+    return element(by.id('e2e_test_img_x' + row + 'x' + col));
   }
 
   function expectPiece(row, col, pieceKind) {
@@ -22,13 +22,41 @@ describe('Connect6', function() {
     expect(getImg(row, col).getAttribute("src")).toEqual(
       pieceKind === "" ? null : "http://localhost:9000/app/imgsrc/" + piece + ".png");
   }
-
+  
+  /*// Check every element each time, slowest.
   function expectBoard(board) {
     for (var row = 0; row < 19; row++) {
       for (var col = 0; col < 19; col++) {
         expectPiece(row, col, board[row][col]);
       }
     }
+  }
+  
+  //better way to check the whole board.
+  function expectBoardWhole(board) {
+    element.all(by.css('.piece')).each(function(element) {
+      element.getAttribute("id").then(function (id) {
+        var cordinates = id.split("x");
+        var row = cordinates[1];
+        var col = cordinates[2];
+        var piece = board[row][col] === 'X' ? "black" : board[row][col] === 'O' ? "white" : "";
+        expect(element.isDisplayed()).toEqual(piece === "" ? false : true);
+        expect(element.getAttribute("src")).toEqual(
+          piece === "" ? null : "http://localhost:9000/app/imgsrc/" + piece + ".png");
+      });
+    });
+  }*/
+
+  //cheating way to check whole board, fastest .
+  function expectBoardCheat(board) {
+    element.all(by.css('.piece')).each(function(element, index) {
+      var row = Math.floor(index / 19);
+      var col = index % 19;
+      var piece = board[row][col] === 'X' ? "black" : board[row][col] === 'O' ? "white" : "";
+      expect(element.isDisplayed()).toEqual(piece === "" ? false : true);
+      expect(element.getAttribute("src")).toEqual(
+        piece === "" ? null : "http://localhost:9000/app/imgsrc/" + piece + ".png");
+    });
   }
 
   function clickDivAndExpectPiece(row, col, pieceKind) {
@@ -47,7 +75,7 @@ describe('Connect6', function() {
     }, JSON.stringify(matchState), JSON.stringify(playMode));
   }
 
-    /** Get the board needed, params is the list of pieces {pos:[row, col], piece:''} */
+  /** Get the board needed, params is the list of pieces {pos:[row, col], piece:''} */
   function getBoard(pieces) {
     var board = [['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
                  ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -88,150 +116,327 @@ describe('Connect6', function() {
   });
 
   it('should have an empty Connect6 board', function () {
-    expectBoard(getBoard());
+    expectBoardCheat(getBoard());
   });
 
-  it('should show X if I click in 0x0', function () {
-    clickDivAndExpectPiece(0, 0, "X");
-    expectBoard(
-        [['X', '', ''],
-         ['', '', ''],
-         ['', '', '']]);
+  it('should show Black if I click in 9x9', function () {
+    clickDivAndExpectPiece(9, 9, "X");
+    expectBoardCheat(getBoard([
+      {pos: [9, 9], piece: 'X'}]));
   });
 
   it('should ignore clicking on a non-empty cell', function () {
     clickDivAndExpectPiece(0, 0, "X");
     clickDivAndExpectPiece(0, 0, "X"); // clicking on a non-empty cell doesn't do anything.
-    clickDivAndExpectPiece(1, 1, "O");
-    expectBoard(
-        [['X', '', ''],
-         ['', 'O', ''],
-         ['', '', '']]);
+    clickDivAndExpectPiece(9, 9, "O");
+    clickDivAndExpectPiece(9, 10, "O");
+    expectBoardCheat(getBoard([
+      {pos: [0, 0], piece: 'X'},
+      {pos: [9, 9], piece: 'O'},
+      {pos: [9, 10], piece: 'O'}]));
   });
 
-  it('should end game if X wins', function () {
-    for (var col = 0; col < 3; col++) {
-      clickDivAndExpectPiece(1, col, "X");
-      getDiv(2, col).click();
-      // After the game ends, player "O" click (in cell 2x2) will be ignored.
-      expectPiece(2, col, col === 2 ? "" : "O");
+  it('should end game if white wins', function () {
+    clickDivAndExpectPiece(7, 8, "X");
+    var col = 9;
+    for (var row = 7; row < 12; row++) {
+      var piece = col === 9 ? "O" : "X";
+      clickDivAndExpectPiece(row, col, piece);
+      clickDivAndExpectPiece(row+1, col, piece);
+      col = 17 - col;
     }
-    expectBoard(
-        [['', '', ''],
-         ['X', 'X', 'X'],
-         ['O', 'O', '']]);
+    getDiv(12, 8).click();
+    // After the game ends, player black click (in cell 12x8) will be ignored.
+    expectPiece(12, 8, "");
+
+    expectBoardCheat(getBoard([
+      {pos: [7, 8], piece: 'X'},
+      {pos: [8, 8], piece: 'X'},
+      {pos: [9, 8], piece: 'X'},
+      {pos: [10, 8], piece: 'X'},
+      {pos: [11, 8], piece: 'X'},
+      {pos: [7, 9], piece: 'O'},
+      {pos: [8, 9], piece: 'O'},
+      {pos: [9, 9], piece: 'O'},
+      {pos: [10, 9], piece: 'O'},
+      {pos: [11, 9], piece: 'O'},
+      {pos: [12, 9], piece: 'O'}]));
   });
 
-  it('should end the game in tie', function () {
+  it('should end game if Black wins', function () {
     clickDivAndExpectPiece(0, 0, "X");
-    clickDivAndExpectPiece(1, 0, "O");
-    clickDivAndExpectPiece(0, 1, "X");
-    clickDivAndExpectPiece(1, 1, "O");
-    clickDivAndExpectPiece(1, 2, "X");
-    clickDivAndExpectPiece(0, 2, "O");
-    clickDivAndExpectPiece(2, 0, "X");
-    clickDivAndExpectPiece(2, 1, "O");
-    clickDivAndExpectPiece(2, 2, "X");
-    expectBoard(
-        [['X', 'X', 'O'],
-         ['O', 'O', 'X'],
-         ['X', 'O', 'X']]);
+    clickDivAndExpectPiece(9, 8, "O");
+    clickDivAndExpectPiece(10, 13, "O");
+    var row = 8;
+    for (var col = 8; col < 13; col++) {
+      var piece = row === 8 ? "X" : "O";
+      clickDivAndExpectPiece(row, col, piece);
+      clickDivAndExpectPiece(row, col+1, piece);
+      row = 17 - row;
+    }
+    getDiv(12, 12).click();
+    // After the game ends, player white click (in cell 12x12) will be ignored.
+    expectPiece(12, 12, "");
+
+    expectBoardCheat(getBoard([
+      {pos: [0, 0], piece: 'X'},
+      {pos: [8, 8], piece: 'X'},
+      {pos: [8, 9], piece: 'X'},
+      {pos: [8, 10], piece: 'X'},
+      {pos: [8, 11], piece: 'X'},
+      {pos: [8, 12], piece: 'X'},
+      {pos: [8, 13], piece: 'X'},
+      {pos: [9, 8], piece: 'O'},
+      {pos: [9, 9], piece: 'O'},
+      {pos: [9, 10], piece: 'O'},
+      {pos: [9, 11], piece: 'O'},
+      {pos: [9, 12], piece: 'O'},
+      {pos: [10, 13], piece: 'O'}]));
   });
-
-  var delta1 = {row: 1, col: 0};
-  var board1 =
-      [['X', 'O', ''],
-       ['X', '', ''],
-       ['', '', '']];
-  var delta2 = {row: 1, col: 1};
-  var board2 =
-      [['X', 'O', ''],
-       ['X', 'O', ''],
-       ['', '', '']];
-  var delta3 = {row: 2, col: 0};
-  var board3 =
-      [['X', 'O', ''],
-       ['X', 'O', ''],
-       ['X', '', '']];
-  var delta4 = {row: 2, col: 1};
-  var board4 =
-      [['X', 'O', ''],
-       ['X', 'O', ''],
-       ['', 'X', '']];
-
-  var matchState2 = {
-    turnIndexBeforeMove: 1,
-    turnIndex: 0,
-    endMatchScores: null,
-    lastMove: [{setTurn: {turnIndex: 0}},
-          {set: {key: 'board', value: board2}},
-          {set: {key: 'delta', value: delta2}}],
-    lastState: {board: board1, delta: delta1},
-    currentState: {board: board2, delta: delta2},
-    lastVisibleTo: {},
-    currentVisibleTo: {},
-  };
-  var matchState3 = {
-    turnIndexBeforeMove: 0,
-    turnIndex: -2,
-    endMatchScores: [1, 0],
-    lastMove: [{endMatch: {endMatchScores: [1, 0]}},
-         {set: {key: 'board', value: board3}},
-         {set: {key: 'delta', value: delta3}}],
-    lastState: {board: board2, delta: delta2},
-    currentState: {board: board3, delta: delta3},
-    lastVisibleTo: {},
-    currentVisibleTo: {},
-  };
-  var matchState4 = {
-    turnIndexBeforeMove: 0,
-    turnIndex: 1,
-    endMatchScores: null,
-    lastMove: [{setTurn: {turnIndex: 1}},
-         {set: {key: 'board', value: board4}},
-         {set: {key: 'delta', value: delta4}}],
-    lastState: {board: board2, delta: delta2},
-    currentState: {board: board4, delta: delta4},
-    lastVisibleTo: {},
-    currentVisibleTo: {},
-  };
 
   it('can start from a match that is about to end, and win', function () {
-    setMatchState(matchState2, 'passAndPlay');
-    expectBoard(board2);
-    clickDivAndExpectPiece(2, 0, "X"); // winning click!
-    clickDivAndExpectPiece(2, 1, ""); // can't click after game ended
-    expectBoard(board3);
+    var boardBefore = getBoard([
+        {pos: [0, 0], piece: 'X'},
+        {pos: [1, 0], piece: 'X'},
+        {pos: [2, 0], piece: 'X'},
+        {pos: [3, 0], piece: 'X'},
+        {pos: [4, 0], piece: 'X'},
+        {pos: [0, 1], piece: 'O'},
+        {pos: [1, 1], piece: 'O'},
+        {pos: [2, 1], piece: 'O'},
+        {pos: [3, 1], piece: 'O'}]);
+
+    var currentBoard = getBoard([
+        {pos: [0, 0], piece: 'X'},
+        {pos: [1, 0], piece: 'X'},
+        {pos: [2, 0], piece: 'X'},
+        {pos: [3, 0], piece: 'X'},
+        {pos: [4, 0], piece: 'X'},
+        {pos: [0, 1], piece: 'O'},
+        {pos: [1, 1], piece: 'O'},
+        {pos: [2, 1], piece: 'O'},
+        {pos: [3, 1], piece: 'O'},
+        {pos: [4, 1], piece: 'O'}]);
+
+    var boardAfter = getBoard([
+        {pos: [0, 0], piece: 'X'},
+        {pos: [1, 0], piece: 'X'},
+        {pos: [2, 0], piece: 'X'},
+        {pos: [3, 0], piece: 'X'},
+        {pos: [4, 0], piece: 'X'},
+        {pos: [0, 1], piece: 'O'},
+        {pos: [1, 1], piece: 'O'},
+        {pos: [2, 1], piece: 'O'},
+        {pos: [3, 1], piece: 'O'},
+        {pos: [4, 1], piece: 'O'},
+        {pos: [5, 1], piece: 'O'}]);
+
+    var currentDelta = {row: 4, col: 1};
+    var deltaBefore = {row: 4, col: 0};
+    var currenGameData = {totalMove: 10, winner: '', moveIndex: 3};
+    var gameDataBefore = {totalMove: 9, winner: '', moveIndex: 2};
+
+    var matchState = {
+      turnIndexBeforeMove: 1,
+      turnIndex: 1,
+      endMatchScores: null,
+      lastMove: [{setTurn: {turnIndex: 1}},
+            {set: {key: 'board', value: currentBoard}},
+            {set: {key: 'delta', value: currentDelta}},
+            {set: {key: 'gameData', value: currenGameData}}],
+      lastState: {board: boardBefore, delta: deltaBefore, gameData: gameDataBefore},
+      currentState: {board: currentBoard, delta: currentDelta, gameData: currenGameData},
+      lastVisibleTo: {},
+      currentVisibleTo: {},
+    };
+
+    setMatchState(matchState, 'passAndPlay');
+    expectBoardCheat(currentBoard);
+    clickDivAndExpectPiece(5, 1, "O"); // winning click!
+    clickDivAndExpectPiece(5, 2, ""); // can't click after game ended
+    expectBoardCheat(boardAfter);
   });
 
   it('cannot play if it is not your turn', function () {
-    // Now make sure that if you're playing "O" (your player index is 1) then
-    // you can't do the winning click!
-    setMatchState(matchState2, 1); // playMode=1 means that yourPlayerIndex=1.
-    expectBoard(board2);
-    clickDivAndExpectPiece(2, 0, ""); // can't do the winning click!
-    expectBoard(board2);
+    var boardBefore = getBoard([
+        {pos: [6, 10], piece: 'X'},
+        {pos: [7, 10], piece: 'X'},
+        {pos: [8, 10], piece: 'X'},
+        {pos: [9, 10], piece: 'X'},
+        {pos: [10, 10], piece: 'X'},
+        {pos: [6, 11], piece: 'O'},
+        {pos: [7, 11], piece: 'O'},
+        {pos: [8, 11], piece: 'O'},
+        {pos: [9, 11], piece: 'O'}]);
+
+    var currentBoard = getBoard([
+        {pos: [6, 10], piece: 'X'},
+        {pos: [7, 10], piece: 'X'},
+        {pos: [8, 10], piece: 'X'},
+        {pos: [9, 10], piece: 'X'},
+        {pos: [10, 10], piece: 'X'},
+        {pos: [6, 11], piece: 'O'},
+        {pos: [7, 11], piece: 'O'},
+        {pos: [8, 11], piece: 'O'},
+        {pos: [9, 11], piece: 'O'},
+        {pos: [10, 11], piece: 'O'}]);
+
+    var currentDelta = {row: 10, col: 11};
+    var deltaBefore = {row: 10, col: 10};
+    var currenGameData = {totalMove: 10, winner: '', moveIndex: 3};
+    var gameDataBefore = {totalMove: 9, winner: '', moveIndex: 2};
+
+    var matchState = {
+      turnIndexBeforeMove: 1,
+      turnIndex: 1,
+      endMatchScores: null,
+      lastMove: [{setTurn: {turnIndex: 1}},
+            {set: {key: 'board', value: currentBoard}},
+            {set: {key: 'delta', value: currentDelta}},
+            {set: {key: 'gameData', value: currenGameData}}],
+      lastState: {board: boardBefore, delta: deltaBefore, gameData: gameDataBefore},
+      currentState: {board: currentBoard, delta: currentDelta, gameData: currenGameData},
+      lastVisibleTo: {},
+      currentVisibleTo: {},
+    };
+
+    setMatchState(matchState, 0);
+    expectBoardCheat(currentBoard);
+    clickDivAndExpectPiece(11, 11, ""); // cant do winning click!
+    expectBoardCheat(currentBoard);
   });
 
   it('can start from a match that ended', function () {
-    setMatchState(matchState3, 'passAndPlay');
-    expectBoard(board3);
+    var boardBefore = getBoard([
+        {pos: [6, 8], piece: 'X'},
+        {pos: [7, 8], piece: 'X'},
+        {pos: [8, 8], piece: 'X'},
+        {pos: [9, 8], piece: 'X'},
+        {pos: [10, 8], piece: 'X'},
+        {pos: [7, 9], piece: 'O'},
+        {pos: [8, 9], piece: 'O'},
+        {pos: [9, 9], piece: 'O'},
+        {pos: [10, 9], piece: 'O'},
+        {pos: [11, 9], piece: 'O'}]);
+
+
+    var currentBoard = getBoard([
+        {pos: [6, 8], piece: 'X'},
+        {pos: [7, 8], piece: 'X'},
+        {pos: [8, 8], piece: 'X'},
+        {pos: [9, 8], piece: 'X'},
+        {pos: [10, 8], piece: 'X'},
+        {pos: [7, 9], piece: 'O'},
+        {pos: [8, 9], piece: 'O'},
+        {pos: [9, 9], piece: 'O'},
+        {pos: [10, 9], piece: 'O'},
+        {pos: [11, 9], piece: 'O'},
+        {pos: [12, 9], piece: 'O'}]);
+
+    var currentDelta = {row: 12, col: 9};
+    var deltaBefore = {row: 11, col: 9};
+    var currenGameData = {totalMove: 11, winner: 'O', moveIndex: 0};
+    var gameDataBefore = {totalMove: 10, winner: '', moveIndex: 3};
+
+    var matchState = {
+      turnIndexBeforeMove: 1,
+      turnIndex: -2,
+      endMatchScores: [0, 1],
+      lastMove: [{endMatch: {endMatchScores: [0, 1]}},
+          {set: {key: 'board', value: currentBoard}},
+          {set: {key: 'delta', value: currentDelta}},
+          {set: {key: 'gameData', value: currenGameData}}],
+      lastState: {board: boardBefore, delta: deltaBefore, gameData: gameDataBefore},
+      currentState: {board: currentBoard, delta: currentDelta, gameData: currenGameData},
+      lastVisibleTo: {},
+      currentVisibleTo: {},
+    };
+
+    setMatchState(matchState, 'passAndPlay');
+    expectBoardCheat(currentBoard);
     clickDivAndExpectPiece(2, 1, ""); // can't click after game ended
+    expectBoardCheat(currentBoard);
   });
 
-  it('should make an AI move after at most 1.5 seconds', function () {
-    setMatchState(matchState4, 'playAgainstTheComputer');
-    browser.sleep(1500);
-    expectBoard(
-        [['X', 'O', ''],
-         ['X', 'O', ''],
-         ['O', 'X', '']]);
-    clickDivAndExpectPiece(2, 2, "X"); // Human-player X did a very stupid move!
-    browser.sleep(1500); // AI will now make the winning move
-    expectBoard(
-        [['X', 'O', 'O'],
-         ['X', 'O', ''],
-         ['O', 'X', 'X']]);
-    clickDivAndExpectPiece(1, 2, ""); // Can't make a move after game is over
+  it('can start from a match that ended with AI', function () {
+    var boardBefore = getBoard([
+        {pos: [6, 8], piece: 'X'},
+        {pos: [7, 8], piece: 'X'},
+        {pos: [8, 8], piece: 'X'},
+        {pos: [9, 8], piece: 'X'},
+        {pos: [10, 8], piece: 'X'},
+        {pos: [7, 9], piece: 'O'},
+        {pos: [8, 9], piece: 'O'},
+        {pos: [9, 9], piece: 'O'},
+        {pos: [10, 9], piece: 'O'},
+        {pos: [11, 9], piece: 'O'}]);
+
+
+    var currentBoard = getBoard([
+        {pos: [6, 8], piece: 'X'},
+        {pos: [7, 8], piece: 'X'},
+        {pos: [8, 8], piece: 'X'},
+        {pos: [9, 8], piece: 'X'},
+        {pos: [10, 8], piece: 'X'},
+        {pos: [7, 9], piece: 'O'},
+        {pos: [8, 9], piece: 'O'},
+        {pos: [9, 9], piece: 'O'},
+        {pos: [10, 9], piece: 'O'},
+        {pos: [11, 9], piece: 'O'},
+        {pos: [12, 9], piece: 'O'}]);
+
+    var currentDelta = {row: 12, col: 9};
+    var deltaBefore = {row: 11, col: 9};
+    var currenGameData = {totalMove: 11, winner: 'O', moveIndex: 0};
+    var gameDataBefore = {totalMove: 10, winner: '', moveIndex: 3};
+
+    var matchState = {
+      turnIndexBeforeMove: 1,
+      turnIndex: -2,
+      endMatchScores: [0, 1],
+      lastMove: [{endMatch: {endMatchScores: [0, 1]}},
+          {set: {key: 'board', value: currentBoard}},
+          {set: {key: 'delta', value: currentDelta}},
+          {set: {key: 'gameData', value: currenGameData}}],
+      lastState: {board: boardBefore, delta: deltaBefore, gameData: gameDataBefore},
+      currentState: {board: currentBoard, delta: currentDelta, gameData: currenGameData},
+      lastVisibleTo: {},
+      currentVisibleTo: {},
+    };
+
+    setMatchState(matchState, 'playAgainstTheComputer');
+    expectBoardCheat(currentBoard);
+    browser.sleep(1000); // AI can't move after game ended
+    expectBoardCheat(currentBoard);
+  });
+
+  it('should end the game in tie', function () {
+    var board = getBoard();
+    var piece = 'X';
+    var index = 1;
+    var row;
+    var col;
+    for (row = 0; row < 18; row = row + 2) {
+      for (col = 0; col < 19; col++) {
+        clickDivAndExpectPiece(row, col, piece);
+        board[row][col] = piece;
+        index = (index + 1) % 4;
+        piece = index === 0 || index === 1 ? 'X' : 'O';
+        clickDivAndExpectPiece(row + 1, col, piece);
+        board[row + 1][col] = piece;
+        index = (index + 1) % 4;
+        piece = index === 0 || index === 1 ? 'X' : 'O';
+      }
+    }
+    for (col = 0; col < 19; col++) {
+      clickDivAndExpectPiece(18, col, piece);
+      board[18][col] = piece;
+      index = (index + 1) % 4;
+      piece = index === 0 || index === 1 ? 'X' : 'O';
+    }
+    getDiv(0, 0).click();
+    // After the game ends, click (in cell 0x0) will be ignored.
+    expectPiece(0, 0, "X");
+    expectBoardCheat(board);
   });
 });

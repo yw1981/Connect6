@@ -35,7 +35,7 @@ module.exports = function(grunt) {
           browser: false, element: false, by: false, // Protractor
         },
       },
-      all: ['Gruntfile.js', 'test/karma.conf.js', 'test/protractor.conf.js', 'app/js/*.js', 'app/languages/*.js']
+      all: ['Gruntfile.js', 'test/karma.conf.js', 'test/protractor.conf.js', 'app/js/*.js', 'test/unit/*.js', 'test/e2e/*.js', 'app/languages/*.js']
     },
     karma: {
       unit: {
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
     // Run karma and watch files using:
     // grunt karma:unit:start watch
     watch: {
-      files: ['app/js/*.js'],
+      files: ['app/js/*.js', 'test/unit/*.js', 'test/e2e/*.js'],
       tasks: ['jshint', 'karma:unit:run']
     },
     concat: {

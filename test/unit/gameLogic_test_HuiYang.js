@@ -1,4 +1,7 @@
 describe("In Connect6", function () {
+  
+  'use strict';
+
   var _gameLogic;
 
   beforeEach(module("myApp"));
@@ -292,8 +295,9 @@ describe("In Connect6", function () {
         {set: {key: 'gameData', value: {totalMove: 361, winner: 'X', moveIndex: 2}}}]);
   });
 
+  /*jshint multistr: true */
   it("8. Even if gameData.winner before move is set wrong, \
-  move after game is over is illegal", function () {
+      move after game is over is illegal", function () {
     expectIllegalMove(0,
       {board: getBoard([
         //[['X', 'O', '', ... ],
