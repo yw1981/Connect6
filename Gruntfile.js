@@ -81,7 +81,7 @@ module.exports = function(grunt) {
     manifest: {
       generate: {
         options: {
-          basePath: '.',
+          basePath: 'app',
           cache: [
             'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
             'http://yoav-zibin.github.io/emulator/dist/gameServices.min.js',
@@ -90,13 +90,12 @@ module.exports = function(grunt) {
             'http://yoav-zibin.github.io/emulator/main.css',
             'dist/everything.min.js',
             'css/game.css',
-            'imgsrc/*'
           ],
           network: ['dist/everything.min.js.map', 'dist/everything.js'],
           timestamp: true
         },
         dest: 'app/game.appcache',
-        src: []
+        src: ['imgsrc/*']
       }
     },
     'http-server': {
