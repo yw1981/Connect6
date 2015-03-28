@@ -233,6 +233,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
       $scope.board = params.stateAfterMove.board;
       $scope.gameData =  params.stateAfterMove.gameData;  //get game data
       $scope.delta = params.stateAfterMove.delta;
+      $scope.playMode = params.playMode;
       if ($scope.board === undefined) {
         $scope.board = gameLogic.getInitialBoard();
       }
@@ -249,7 +250,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
         $scope.isYourTurn = false; // to make sure the UI won't send another move.
 
         // Wait 100 milliseconds until animation ends.
-        $timeout(sendComputerMove, 100);
+        $timeout(sendComputerMove, 600);
       }
     }
 
@@ -309,9 +310,28 @@ angular.module('myApp', []).factory('gameLogic', function () {
       return "imgsrc/cross.png";
     };
 
-    $scope.shouldSlowlyAppear = function (row, col) {
-      return $scope.delta !== undefined && 
+    function shouldSlowlyAppear (row, col) {
+      return $scope.delta !== undefined && $scope.playMode === "passAndPlay" &&
           $scope.delta.row === row && $scope.delta.col === col;
+    }
+
+    function shouldAnimation (row, col) {
+      return $scope.delta !== undefined && $scope.playMode !== "passAndPlay" &&
+          $scope.delta.row === row && $scope.delta.col === col;
+    }
+
+    function isBlack (row, col) {
+      return $scope.board[row][col] === 'X';
+    }
+    
+    function isWhite (row, col) {
+      return $scope.board[row][col] === 'O';
+    }
+
+    $scope.getClass = function (row, col) {
+      return {piece : true, animation: shouldAnimation(row, col),
+          slowlyAppear: shouldSlowlyAppear(row, col), isBlack: isBlack(row, col),
+          isWhite: isWhite(row, col)};
     };
 
     gameService.setGame({

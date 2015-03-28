@@ -27,6 +27,7 @@
   <script src="http://yoav-zibin.github.io/emulator/stateService.js"></script>
   <!-- /build -->
   
+  <script src="http://yoav-zibin.github.io/emulator/examples/drag_n_drop/dragAndDropListeners.js"></script>
   <script src="languages/en.js"></script>
   <!-- build:js http://yoav-zibin.github.io/emulator/angular-translate/angular-translate.2.6.1.min.js -->
   <script src="http://yoav-zibin.github.io/emulator/angular-translate/angular-translate.2.6.1.js"></script>
@@ -49,11 +50,10 @@
         ng-click="cellClicked(row, col)"
         id="{{'e2e_test_div_x' + row + 'x' + col}}">
         <img class="cell" ng-src="{{getBoardImageSrc(row, col)}}"/>
-        <img ng-class="{piece: true, slowlyAppear: shouldSlowlyAppear(row, col)}"
+        <img ng-class="getClass(row, col)"
           ng-show="shouldShowImage(row, col)"
           ng-src="{{getImageSrc(row, col)}}" 
           id="{{'e2e_test_img_x' + row + 'x' + col}}"/>
-        <div class="click"></div>
       </div>
     </div>   
     </div>
