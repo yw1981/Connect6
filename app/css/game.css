@@ -90,11 +90,13 @@
 }
 /* Chrome, Safari, Opera */
 @-webkit-keyframes animationBlack {
-  from { -webkit-transform:scale3d(3,3,3);top: 1000%; position: relative;}
+  from {opacity: 0.5; top: 500%; position: relative;}
+  to {opacity: 1;}
 }
 
 @-webkit-keyframes animationWhite {
-  from {-webkit-transform:scale3d(3,3,3);top: -1000%; position: relative;}
+  from {opacity: 0.5; top: -500%; position: relative;}
+  to {opacity: 1;}
 }
 
 @-webkit-keyframes slowlyAppear {
@@ -103,13 +105,13 @@
 }
 /* Standard syntax */
 @keyframes animationBlack {
-  from {transform:scale3d(3,3,3);top: 1000%; position: relative;}
-  to {}
+  from {opacity: 0.5; top: 500%; position: relative;}
+  to {opacity: 1;}
 }
 
 @keyframes animationWhite {
-  from {transform:scale3d(3,3,3);top: -1000%; position: relative;}
-  to {}
+  from {opacity: 0.5; top: -500%; position: relative;}
+  to {opacity: 1;}
 }
 @keyframes slowlyAppear {
   from {opacity: 0.1;}
