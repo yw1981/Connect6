@@ -90,12 +90,12 @@
 }
 /* Chrome, Safari, Opera */
 @-webkit-keyframes animationBlack {
-  from {opacity: 0.5;transform:scale(3);top: 200px; position: relative;}
+  from {opacity: 0.5;transform:scale(3);top: 50px; position: relative;}
   to {opacity: 1;}
 }
 
 @-webkit-keyframes animationWhite {
-  from {opacity: 0.5;transform:scale(3);top: -200px; position: relative;}
+  from {opacity: 0.5;transform:scale(3);top: -50px; position: relative;}
   to {opacity: 1;}
 }
 
@@ -105,12 +105,12 @@
 }
 /* Standard syntax */
 @keyframes animationBlack {
-  from {opacity: 0.5;transform:scale(3);top: 200px; position: relative;}
+  from {opacity: 0.5;transform:scale(3);top: 50px; position: relative;}
   to {opacity: 1;}
 }
 
 @keyframes animationWhite {
-  from {opacity: 0.5;transform:scale(3);top: -200px; position: relative;}
+  from {opacity: 0.5;transform:scale(3);top: -50px; position: relative;}
   to {opacity: 1;}
 }
 @keyframes slowlyAppear {
