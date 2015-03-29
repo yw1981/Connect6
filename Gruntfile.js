@@ -91,12 +91,15 @@ module.exports = function(grunt) {
             'http://yoav-zibin.github.io/emulator/main.css',
             'dist/everything.min.js',
             'css/game.css',
+            'imgsrc/black.png',
+            'imgsrc/white.png',
+            'imgsrc/wood.jpg',
           ],
           network: ['dist/everything.min.js.map', 'dist/everything.js'],
           timestamp: true
         },
         dest: 'app/game.appcache',
-        src: ['imgsrc/*']
+        src: []
       }
     },
     'http-server': {

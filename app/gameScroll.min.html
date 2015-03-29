@@ -23,7 +23,7 @@
 
 <div id="gameArea">
   <div id="backgroundScroll">
-     <img id="backboardScroll" src="imgsrc/wood2.jpg"/>
+     <img id="backboardScroll" src="imgsrc/wood.jpg"/>
      <div id="boardScroll">
      <div ng-repeat="row in rows"
       style="position:absolute; top:{{row * 100 / rowsNum }}%; left:0; width:100%; height:{{100 / rowsNum }}%;">
@@ -31,7 +31,6 @@
         style="position:absolute; top:0; left:{{col * 100 / colsNum}}%; width:{{100 / colsNum }}%; height:100%;"
         ng-click="cellClicked(row, col)"
         id="{{'e2e_test_div_x' + row + 'x' + col}}">
-        <img class="cell" ng-src="{{getBoardImageSrc(row, col)}}"/>
         <img ng-class="getClass(row, col)"
           ng-show="shouldShowImage(row, col)"
           ng-src="{{getImageSrc(row, col)}}"
