@@ -311,21 +311,18 @@ angular.module('myApp', []).factory('gameLogic', function () {
       return "imgsrc/cross.png";
     };
 
-    function shouldSlowlyAppear (row, col) {
-      var valid = $scope.delta !== undefined && $scope.delta.row === row && 
-          $scope.delta.col === col;
-      return valid && ($scope.playMode === "passAndPlay" ||
-          $scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 0 ||
-          $scope.playMode === "playBlack" && $scope.indexBeforMove === 1 || 
-          $scope.playMode === "playWhite" && $scope.indexBeforMove === 0);
-    }
-
     function shouldAnimation (row, col) {
       var valid = $scope.delta !== undefined && $scope.delta.row === row && 
           $scope.delta.col === col;
       return  valid && ($scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 1 ||
           $scope.playMode === "playBlack" && $scope.indexBeforMove === 0 || 
           $scope.playMode === "playWhite" && $scope.indexBeforMove === 1);
+    }
+  
+    function shouldSlowlyAppear (row, col) {
+      var valid = $scope.delta !== undefined && $scope.delta.row === row && 
+          $scope.delta.col === col;
+      return valid && !shouldAnimation(row, col);
     }
 
     $scope.getClass = function (row, col) {

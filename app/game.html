@@ -36,6 +36,7 @@
   
   <link rel="stylesheet" type="text/css" href="http://yoav-zibin.github.io/emulator/main.css">
   <link rel="stylesheet" type="text/css" href="css/game.css">
+  
 </head>
 <body ng-cloak ng-controller="Ctrl">
 
@@ -55,9 +56,9 @@
     </svg>
 
     <img ng-attr-width="{{100 / colsNum}}%" ng-attr-height="{{100 / rowsNum}}%"
-    id="clickToDragPiece" 
-    src="{{getPreviewSrc()}}"
-    style="display:none; position:absolute; z-index: 31;" />
+      id="clickToDragPiece" 
+      src="{{getPreviewSrc()}}"
+      style="display:none; position:absolute; z-index: 31;" />
     
   <div id="background">
     <img id="backboard" src="imgsrc/wood2.jpg"/> 
