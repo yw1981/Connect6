@@ -333,6 +333,94 @@ angular.module('myApp', []).factory('gameLogic', function () {
           slowlyAppear: shouldSlowlyAppear(row, col), isBlack: isBlack(row, col),
           isWhite: isWhite(row, col)};
     };
+    
+    function getIntegersTill(number) {
+      var res = [];
+      for (var i = 0; i < number; i++) {
+        res.push(i);
+      }
+      return res;
+    }
+    var draggingLines = document.getElementById("draggingLines");
+    var horizontalDraggingLine = document.getElementById("horizontalDraggingLine");
+    var verticalDraggingLine = document.getElementById("verticalDraggingLine");
+    var clickToDragPiece = document.getElementById("clickToDragPiece");
+    var gameArea = document.getElementById("gameArea");
+    var rowsNum = 19;
+    var colsNum = 19;
+
+    function handleDragEvent(type, clientX, clientY) {
+      // Center point in gameArea
+      var x = clientX - gameArea.offsetLeft;
+      var y = clientY - gameArea.offsetTop;
+      // Is outside gameArea?
+      if (x < 0 || y < 0 || x >= gameArea.clientWidth || y >= gameArea.clientHeight) {
+        clickToDragPiece.style.display = "none";
+        draggingLines.style.display = "none";
+        return;
+      }
+
+      clickToDragPiece.style.display = "inline";
+      draggingLines.style.display = "inline";
+      
+      // Inside gameArea. Let's find the containing square's row and col
+      var col = Math.floor(colsNum * x / gameArea.clientWidth);
+      var row = Math.floor(rowsNum * y / gameArea.clientHeight);
+
+      var centerXY = getSquareCenterXY(row, col);
+      verticalDraggingLine.setAttribute("x1", centerXY.x);
+      verticalDraggingLine.setAttribute("x2", centerXY.x);
+      horizontalDraggingLine.setAttribute("y1", centerXY.y);
+      horizontalDraggingLine.setAttribute("y2", centerXY.y);
+      var topLeft = getSquareTopLeft(row, col);
+      clickToDragPiece.style.left = topLeft.left + "px";
+      clickToDragPiece.style.top = topLeft.top + "px";
+
+      if (type === "touchend" || type === "touchcancel" || type === "touchleave" || type === "mouseup") {
+        // drag ended
+        clickToDragPiece.style.display = "none";
+        draggingLines.style.display = "none";
+        dragDone(row, col);
+      }
+    }
+    function getSquareWidthHeight() {
+      return {
+        width: gameArea.clientWidth / colsNum,
+        height: gameArea.clientHeight / rowsNum
+      };
+    }
+
+    function getSquareTopLeft(row, col) {
+      var size = getSquareWidthHeight();
+      return {top: row * size.height, left: col * size.width};
+    }
+
+    function getSquareCenterXY(row, col) {
+      var size = getSquareWidthHeight();
+      return {
+        x: col * size.width + size.width / 2,
+        y: row * size.height + size.height / 2
+      };
+    }
+
+    function dragDone(row, col) {
+      $scope.cellClicked(row, col);
+      $scope.$apply(function () {
+        var msg = "Dragged to " + row + "x" + col;
+        $log.info(msg);
+        $scope.msg = msg;
+      });
+    }
+
+    $scope.getPreviewSrc = function () {
+      return  $scope.turnIndex === 1 ? "imgsrc/white.png" : "imgsrc/black.png";
+    };
+
+    window.handleDragEvent = handleDragEvent;
+    $scope.rows = getIntegersTill(rowsNum);
+    $scope.cols = getIntegersTill(colsNum);
+    $scope.rowsNum = rowsNum;
+    $scope.colsNum = colsNum;
 
     gameService.setGame({
       gameDeveloperEmail: "wuping.lei@nyu.edu",
