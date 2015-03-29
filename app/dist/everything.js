@@ -166,8 +166,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
   function getPossibleMoves(board, turnIndexBeforeMove, gameData) {
     var possibleMoves = [];
     var i, j;
-    for (i = 0; i < 9; i++) {
-      for (j = 0; j < 9; j++) {
+    for (i = 0; i < 19; i++) {
+      for (j = 0; j < 19; j++) {
         try {
           possibleMoves.push(createMove(board, i, j, turnIndexBeforeMove, gameData));
         } catch (ignore) {
@@ -346,8 +346,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
     var verticalDraggingLine = document.getElementById("verticalDraggingLine");
     var clickToDragPiece = document.getElementById("clickToDragPiece");
     var gameArea = document.getElementById("gameArea");
-    var rowsNum = 9;
-    var colsNum = 9;
+    var rowsNum = 19;
+    var colsNum = 19;
 
     function handleDragEvent(type, clientX, clientY) {
       //if not your turn, dont handle event

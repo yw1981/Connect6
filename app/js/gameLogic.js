@@ -166,8 +166,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
   function getPossibleMoves(board, turnIndexBeforeMove, gameData) {
     var possibleMoves = [];
     var i, j;
-    for (i = 0; i < 9; i++) {
-      for (j = 0; j < 9; j++) {
+    for (i = 0; i < 19; i++) {
+      for (j = 0; j < 19; j++) {
         try {
           possibleMoves.push(createMove(board, i, j, turnIndexBeforeMove, gameData));
         } catch (ignore) {
