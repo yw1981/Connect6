@@ -137,8 +137,8 @@ angular.module('myApp')
     var verticalDraggingLine = document.getElementById("verticalDraggingLine");
     var clickToDragPiece = document.getElementById("clickToDragPiece");
     var gameArea = document.getElementById("gameArea");
-    var rowsNum = 19;
-    var colsNum = 19;
+    var rowsNum = 9;
+    var colsNum = 9;
 
     function handleDragEvent(type, clientX, clientY) {
       //if not your turn, dont handle event
