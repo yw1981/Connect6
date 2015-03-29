@@ -320,14 +320,20 @@ angular.module('myApp', []).factory('gameLogic', function () {
     }
 
     function shouldSlowlyAppear (row, col) {
-      return $scope.delta !== undefined && $scope.playMode === "passAndPlay" &&
-          $scope.delta.row === row && $scope.delta.col === col;
+      var valid = $scope.delta !== undefined && $scope.delta.row === row && 
+          $scope.delta.col === col;
+      return valid && ($scope.playMode === "passAndPlay" ||
+          $scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 0 ||
+          $scope.playMode === "playBlack" && $scope.indexBeforMove === 0 || 
+          $scope.playMode === "playWhite" && $scope.indexBeforMove === 1);
     }
 
     function shouldAnimation (row, col) {
-      return $scope.delta !== undefined && $scope.playMode !== "passAndPlay" &&
-          $scope.delta.row === row && $scope.delta.col === col && 
-          $scope.indexBeforMove === 1;
+      var valid = $scope.delta !== undefined && $scope.delta.row === row && 
+          $scope.delta.col === col;
+      return  valid && ($scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 1 ||
+          $scope.playMode === "playBlack" && $scope.indexBeforMove === 1 || 
+          $scope.playMode === "playWhite" && $scope.indexBeforMove === 0);
     }
 
     $scope.getClass = function (row, col) {
