@@ -68,7 +68,7 @@
       <div ng-repeat="col in cols"
         style="position:absolute; top:0; left:{{col * 100 / colsNum}}%; width:{{100 / colsNum }}%; height:100%;"
         id="{{'e2e_test_div_x' + row + 'x' + col}}">
-        <img class="cell" ng-src="{{getBoardImageSrc(row, col)}}"/>
+
         <img ng-class="getClass(row, col)"
           ng-show="shouldShowImage(row, col)"
           ng-src="{{getImageSrc(row, col)}}" 
