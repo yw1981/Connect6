@@ -116,10 +116,9 @@ angular.module('myApp')
     }
 
     function shouldAnimation (row, col) {
-      $log.info(isBlack(row, col));
       return $scope.delta !== undefined && $scope.playMode !== "passAndPlay" &&
           $scope.delta.row === row && $scope.delta.col === col && 
-          $scope.indexBeforMove === (isBlack(row,col) ? 1 : 0);
+          $scope.indexBeforMove === 1;
     }
 
     $scope.getClass = function (row, col) {

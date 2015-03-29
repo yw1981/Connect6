@@ -234,6 +234,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
       $scope.gameData =  params.stateAfterMove.gameData;  //get game data
       $scope.delta = params.stateAfterMove.delta;
       $scope.playMode = params.playMode;
+      $scope.indexBeforMove = params.turnIndexBeforeMove;
       if ($scope.board === undefined) {
         $scope.board = gameLogic.getInitialBoard();
       }
@@ -310,6 +311,14 @@ angular.module('myApp', []).factory('gameLogic', function () {
       return "imgsrc/cross.png";
     };
 
+    function isBlack (row, col) {
+      return $scope.board[row][col] === 'X';
+    }
+    
+    function isWhite (row, col) {
+      return $scope.board[row][col] === 'O';
+    }
+
     function shouldSlowlyAppear (row, col) {
       return $scope.delta !== undefined && $scope.playMode === "passAndPlay" &&
           $scope.delta.row === row && $scope.delta.col === col;
@@ -317,15 +326,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
 
     function shouldAnimation (row, col) {
       return $scope.delta !== undefined && $scope.playMode !== "passAndPlay" &&
-          $scope.delta.row === row && $scope.delta.col === col;
-    }
-
-    function isBlack (row, col) {
-      return $scope.board[row][col] === 'X';
-    }
-    
-    function isWhite (row, col) {
-      return $scope.board[row][col] === 'O';
+          $scope.delta.row === row && $scope.delta.col === col && 
+          $scope.indexBeforMove === 1;
     }
 
     $scope.getClass = function (row, col) {
@@ -350,6 +352,10 @@ angular.module('myApp', []).factory('gameLogic', function () {
     var colsNum = 19;
 
     function handleDragEvent(type, clientX, clientY) {
+      //if not your turn, dont handle event
+      if (!$scope.isYourTurn) {
+        return;
+      }
       // Center point in gameArea
       var x = clientX - gameArea.offsetLeft;
       var y = clientY - gameArea.offsetTop;
