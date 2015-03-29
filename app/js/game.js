@@ -102,35 +102,26 @@ angular.module('myApp')
       return "imgsrc/cross.png";
     };
 
-    function isBlack (row, col) {
-      return $scope.board[row][col] === 'X';
-    }
-    
-    function isWhite (row, col) {
-      return $scope.board[row][col] === 'O';
-    }
-
     function shouldSlowlyAppear (row, col) {
       var valid = $scope.delta !== undefined && $scope.delta.row === row && 
           $scope.delta.col === col;
       return valid && ($scope.playMode === "passAndPlay" ||
           $scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 0 ||
-          $scope.playMode === "playBlack" && $scope.indexBeforMove === 0 || 
-          $scope.playMode === "playWhite" && $scope.indexBeforMove === 1);
+          $scope.playMode === "playBlack" && $scope.indexBeforMove === 1 || 
+          $scope.playMode === "playWhite" && $scope.indexBeforMove === 0);
     }
 
     function shouldAnimation (row, col) {
       var valid = $scope.delta !== undefined && $scope.delta.row === row && 
           $scope.delta.col === col;
       return  valid && ($scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 1 ||
-          $scope.playMode === "playBlack" && $scope.indexBeforMove === 1 || 
-          $scope.playMode === "playWhite" && $scope.indexBeforMove === 0);
+          $scope.playMode === "playBlack" && $scope.indexBeforMove === 0 || 
+          $scope.playMode === "playWhite" && $scope.indexBeforMove === 1);
     }
 
     $scope.getClass = function (row, col) {
       return {piece : true, animation: shouldAnimation(row, col),
-          slowlyAppear: shouldSlowlyAppear(row, col), isBlack: isBlack(row, col),
-          isWhite: isWhite(row, col)};
+          slowlyAppear: shouldSlowlyAppear(row, col)};
     };
     
     function getIntegersTill(number) {

@@ -70,14 +70,9 @@
   border-left: 2px solid black;
 }
 
-.animation.isBlack {
-  -webkit-animation: animationBlack 0.6s linear; /* Chrome, Safari, Opera */
-  animation: animationBlack 0.6s linear;
-}
-
-.animation.isWhite {
-  -webkit-animation: animationWhite 0.6s linear; /* Chrome, Safari, Opera */
-  animation: animationWhite 0.6s linear;
+.animation {
+  -webkit-animation: animation 0.6s linear; /* Chrome, Safari, Opera */
+  animation: animation 0.6s linear;
 }
 
 .slowlyAppear {
@@ -85,13 +80,8 @@
   animation: slowlyAppear 0.5s linear;
 }
 /* Chrome, Safari, Opera */
-@-webkit-keyframes animationBlack {
-  from {opacity: 0.5; -webkit-transform:scale(2);top: 500%; position: relative;}
-  to {opacity: 1;}
-}
-
-@-webkit-keyframes animationWhite {
-  from {opacity: 0.5; -webkit-transform:scale(2);top: -500%; position: relative;}
+@-webkit-keyframes animation {
+  from {opacity: 0.5; -webkit-transform:scale(2); top: 500%; position: relative;}
   to {opacity: 1;}
 }
 
@@ -100,15 +90,11 @@
   to {opacity: 1;}
 }
 /* Standard syntax */
-@keyframes animationBlack {
-  from {opacity: 0.5; transform:scale(2);top: 500%; position: relative;}
+@keyframes animation {
+  from {opacity: 0.5; transform:scale(2); top: 500%; position: relative;}
   to {opacity: 1;}
 }
 
-@keyframes animationWhite {
-  from {opacity: 0.5; transform:scale(2);top: -500%; position: relative;}
-  to {opacity: 1;}
-}
 @keyframes slowlyAppear {
   from {opacity: 0.1;}
   to {opacity: 1;}
