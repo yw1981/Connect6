@@ -1,3 +1,7 @@
+body {
+  background-image: url("../imgsrc/wood1.jpg");
+}
+
 #backboard{
   position:absolute;
   height: 100%;
