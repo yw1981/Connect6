@@ -284,6 +284,10 @@ angular.module('myApp', []).factory('gameLogic', function () {
     };
 
     $scope.getBoardImageSrc = function (row, col) {
+      if ((row === 3 || row === 9 || row === 15) &&
+          (col === 3 || col === 9 || col === 15)){
+        return "imgsrc/cross_dot.png";
+      }
       if (row === 0 ) {
         if (col === 0) {
           return "imgsrc/topLeft.png";
