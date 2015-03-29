@@ -81,7 +81,7 @@
 }
 /* Chrome, Safari, Opera */
 @-webkit-keyframes animation {
-  from {opacity: 0.5; -webkit-transform:scale(2); top: 500%; position: relative;}
+  from {opacity: 0.5; -webkit-transform:scale(2); top: -500%; position: relative;}
   to {opacity: 1;}
 }
 
@@ -91,7 +91,7 @@
 }
 /* Standard syntax */
 @keyframes animation {
-  from {opacity: 0.5; transform:scale(2); top: 500%; position: relative;}
+  from {opacity: 0.5; transform:scale(2); top: -500%; position: relative;}
   to {opacity: 1;}
 }
 
