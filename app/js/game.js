@@ -74,38 +74,6 @@ angular.module('myApp')
           : cell === "O" ? "imgsrc/white.png" : "";
     };
 
-    $scope.getBoardImageSrc = function (row, col) {
-      if ((row === 3 || row === 9 || row === 15) &&
-          (col === 3 || col === 9 || col === 15)){
-        return "imgsrc/cross_dot.png";
-      }
-      if (row === 0 ) {
-        if (col === 0) {
-          return "imgsrc/topLeft.png";
-        } else if (col === 18) {
-          return "imgsrc/topRight.png";
-        } else {
-          return "imgsrc/top.png";
-        }
-      } 
-      if (row === 18 ) {
-        if (col === 0) {
-          return "imgsrc/bottomLeft.png";
-        } else if (col === 18) {
-          return "imgsrc/bottomRight.png";
-        } else {
-          return "imgsrc/bottom.png";
-        }
-      } 
-      if ( col === 0 && 0 < row && row < 18 ){
-        return "imgsrc/left.png";
-      }
-      if ( col === 18 && 0 < row && row < 18 ){
-        return "imgsrc/right.png";
-      }
-      return "imgsrc/cross.png";
-    };
-
     function shouldAnimation (row, col) {
       var valid = $scope.delta !== undefined && $scope.delta.row === row && 
           $scope.delta.col === col;
