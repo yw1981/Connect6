@@ -1,8 +1,8 @@
 angular.module('myApp')
-  .controller('Ctrl', ['$scope', '$log', '$timeout',
+  .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
     'gameService', 'stateService', 'gameLogic', 'aiService', 
     'resizeGameAreaService', 
-    function ($scope, $log, $timeout,
+    function ($rootScope, $scope, $log, $timeout,
       gameService, stateService, gameLogic, aiService, 
       resizeGameAreaService) {
 
@@ -10,8 +10,30 @@ angular.module('myApp')
 
     resizeGameAreaService.setWidthToHeight(1);
 
+    var animationEnded = false;
+    var canMakeMove = false;
+    var isComputerTurn = false;
+    var state = null;
+    var turnIndex = null;
+    var turnIndexBefore = null;
+    var playMode = null;
+
+    function animationEndedCallback() {
+      $rootScope.$apply(function () {
+        $log.info("Animation ended");
+        animationEnded = true;
+        if (isComputerTurn) {
+          sendComputerMove();
+        }
+      });
+    }
+
+    document.addEventListener("animationend", animationEndedCallback, false); // standard
+    document.addEventListener("webkitAnimationEnd", animationEndedCallback, false); // WebKit
+    document.addEventListener("oanimationend", animationEndedCallback, false); // Opera
+
     function sendComputerMove() {
-      var possibleMoves = gameLogic.getPossibleMoves($scope.board, $scope.turnIndex, $scope.gameData);
+      var possibleMoves = gameLogic.getPossibleMoves(state.board, state.turnIndex, state.gameData);
       var index = Math.floor(Math.random() * possibleMoves.length);
       gameService.makeMove(possibleMoves[index]);
       //gameService.makeMove(
@@ -21,28 +43,28 @@ angular.module('myApp')
     }
 
     function updateUI(params) {
-      $scope.board = params.stateAfterMove.board;
-      $scope.gameData =  params.stateAfterMove.gameData;  //get game data
-      $scope.delta = params.stateAfterMove.delta;
-      $scope.playMode = params.playMode;
-      $scope.indexBeforMove = params.turnIndexBeforeMove;
-      if ($scope.board === undefined) {
-        $scope.board = gameLogic.getInitialBoard();
+      animationEnded = false;
+      state = params.stateAfterMove;
+      playMode = params.playMode;
+      turnIndexBefore = params.turnIndexBeforeMove;
+      if (state.board === undefined) {
+        state.board = gameLogic.getInitialBoard();
       }
-      if ($scope.gameData === undefined) {
-        $scope.gameData = gameLogic.getInitialGameData();
+      if (state.gameData === undefined) {
+        state.gameData = gameLogic.getInitialGameData();
       }
-      $scope.isYourTurn = params.turnIndexAfterMove >= 0 && // game is ongoing
+      canMakeMove = params.turnIndexAfterMove >= 0 && // game is ongoing
         params.yourPlayerIndex === params.turnIndexAfterMove; // it's my turn
-      $scope.turnIndex = params.turnIndexAfterMove;
+      turnIndex = params.turnIndexAfterMove;
 
       // Is it the computer's turn?
-      if ($scope.isYourTurn && 
-          params.playersInfo[params.yourPlayerIndex].playerId === '') {
-        $scope.isYourTurn = false; // to make sure the UI won't send another move.
+      isComputerTurn = canMakeMove && 
+          params.playersInfo[params.yourPlayerIndex].playerId === '';
+      if (isComputerTurn) {
+        canMakeMove = false; // to make sure the UI won't send another move.
 
         // Wait 100 milliseconds until animation ends.
-        $timeout(sendComputerMove, 600);
+       // $timeout(sendComputerMove, 600);
       }
     }
 
@@ -50,12 +72,12 @@ angular.module('myApp')
 
     $scope.cellClicked = function (row, col) {
       $log.info(["Clicked on cell:", row, col]);
-      if (!$scope.isYourTurn) {
+      if (!canMakeMove) {
         return;
       }
       try {
-        var move = gameLogic.createMove($scope.board, row, col, $scope.turnIndex,  $scope.gameData);
-        $scope.isYourTurn = false; // to prevent making another move
+        var move = gameLogic.createMove(state.board, row, col, turnIndex,  state.gameData);
+        canMakeMove = false; // to prevent making another move
         gameService.makeMove(move);
       } catch (e) {
         $log.info(["Cell is already full in position:", row, col]);
@@ -64,28 +86,29 @@ angular.module('myApp')
     };
     
     $scope.shouldShowImage = function (row, col) {
-      var cell = $scope.board[row][col];
+      var cell = state.board[row][col];
       return cell !== "";
     };
 
     $scope.getImageSrc = function (row, col) {
-      var cell = $scope.board[row][col];
+      var cell = state.board[row][col];
       return cell === "X" ? "imgsrc/black.png"
           : cell === "O" ? "imgsrc/white.png" : "";
     };
 
     function shouldAnimation (row, col) {
-      var valid = $scope.delta !== undefined && $scope.delta.row === row && 
-          $scope.delta.col === col;
-      return  valid && ($scope.playMode === "playAgainstTheComputer" && $scope.indexBeforMove === 1 ||
-          $scope.playMode === "playBlack" && $scope.indexBeforMove === 0 || 
-          $scope.playMode === "playWhite" && $scope.indexBeforMove === 1);
+      var valid = state.delta !== undefined && state.delta.row === row && 
+          state.delta.col === col;
+      return  !animationEnded && valid &&
+          (playMode === "playAgainstTheComputer" && turnIndexBefore === 1 ||
+          playMode === "playBlack" && turnIndexBefore === 0 || 
+          playMode === "playWhite" && turnIndexBefore === 1);
     }
   
     function shouldSlowlyAppear (row, col) {
-      var valid = $scope.delta !== undefined && $scope.delta.row === row && 
-          $scope.delta.col === col;
-      return valid && !shouldAnimation(row, col);
+      var valid = state.delta !== undefined && state.delta.row === row && 
+          state.delta.col === col;
+      return !animationEnded && valid && !shouldAnimation(row, col);
     }
 
     $scope.getClass = function (row, col) {
@@ -110,7 +133,7 @@ angular.module('myApp')
 
     function handleDragEvent(type, clientX, clientY) {
       //if not your turn, dont handle event
-      if (!$scope.isYourTurn) {
+      if (!canMakeMove) {
         return;
       }
       // Center point in gameArea
@@ -176,7 +199,7 @@ angular.module('myApp')
     }
 
     $scope.getPreviewSrc = function () {
-      return  $scope.turnIndex === 1 ? "imgsrc/white.png" : "imgsrc/black.png";
+      return  turnIndex === 1 ? "imgsrc/white.png" : "imgsrc/black.png";
     };
 
     window.handleDragEvent = handleDragEvent;
