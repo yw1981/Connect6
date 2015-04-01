@@ -96,19 +96,20 @@ angular.module('myApp')
           : cell === "O" ? "imgsrc/white.png" : "";
     };
 
-    function shouldAnimation (row, col) {
-      var valid = state.delta !== undefined && state.delta.row === row && 
-          state.delta.col === col;
-      return  !animationEnded && valid &&
-          (playMode === "playAgainstTheComputer" && turnIndexBefore === 1 ||
-          playMode === "playBlack" && turnIndexBefore === 0 || 
-          playMode === "playWhite" && turnIndexBefore === 1);
-    }
-  
     function shouldSlowlyAppear (row, col) {
       var valid = state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
-      return !animationEnded && valid && !shouldAnimation(row, col);
+      return !animationEnded && valid && 
+          (playMode === "playAgainstTheComputer" && turnIndexBefore === 0 ||
+          playMode === "passAndPlay" ||
+          playMode === "playBlack" && turnIndexBefore === 1 || 
+          playMode === "playWhite" && turnIndexBefore === 0);
+    }
+
+    function shouldAnimation (row, col) {
+      var valid = state.delta !== undefined && state.delta.row === row && 
+          state.delta.col === col;
+      return  !animationEnded && valid && !shouldSlowlyAppear(row, col);
     }
 
     $scope.getClass = function (row, col) {
