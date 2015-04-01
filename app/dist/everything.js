@@ -242,7 +242,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     document.addEventListener("oanimationend", animationEndedCallback, false); // Opera
 
     function sendComputerMove() {
-      var possibleMoves = gameLogic.getPossibleMoves(state.board, state.turnIndex, state.gameData);
+      var possibleMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.gameData);
       var index = Math.floor(Math.random() * possibleMoves.length);
       gameService.makeMove(possibleMoves[index]);
       //gameService.makeMove(
@@ -400,10 +400,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
 
     function dragDone(row, col) {
       $scope.cellClicked(row, col);
-      $scope.$apply(function () {
-        var msg = "Dragged to " + row + "x" + col;
-        $log.info(msg);
-        $scope.msg = msg;
+      $rootScope.$apply(function () {
+        $log.info("Dragged to " + row + "x" + col);
       });
     }
 
