@@ -10,7 +10,6 @@ angular.module('myApp')
 
     resizeGameAreaService.setWidthToHeight(1);
 
-    var animationEnded = false;
     var canMakeMove = false;
     var isComputerTurn = false;
     var state = null;
@@ -18,32 +17,15 @@ angular.module('myApp')
     var turnIndexBefore = null;
     var playMode = null;
 
-    function animationEndedCallback() {
-      $rootScope.$apply(function () {
-        $log.info("Animation ended");
-        animationEnded = true;
-        if (isComputerTurn) {
-          sendComputerMove();
-        }
-      });
-    }
-
-    document.addEventListener("animationend", animationEndedCallback, false); // standard
-    document.addEventListener("webkitAnimationEnd", animationEndedCallback, false); // WebKit
-    document.addEventListener("oanimationend", animationEndedCallback, false); // Opera
-
     function sendComputerMove() {
-      var possibleMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.gameData);
-      var index = Math.floor(Math.random() * possibleMoves.length);
-      gameService.makeMove(possibleMoves[index]);
-      //gameService.makeMove(
-          //aiService.createComputerMove($scope.board, $scope.turnIndex, $scope.gameData,
-              // 0.3 seconds for the AI to choose a move
-          //{millisecondsLimit: 300}));
+      //var possibleMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.delta, state.gameData);
+      //gameService.makeMove(possibleMoves[0]);
+      gameService.makeMove(
+        aiService.createComputerMove(state, turnIndex,
+        {millisecondsLimit: 1000}));
     }
 
     function updateUI(params) {
-      animationEnded = false;
       state = params.stateAfterMove;
       playMode = params.playMode;
       turnIndexBefore = params.turnIndexBeforeMove;
@@ -62,9 +44,7 @@ angular.module('myApp')
           params.playersInfo[params.yourPlayerIndex].playerId === '';
       if (isComputerTurn) {
         canMakeMove = false; // to make sure the UI won't send another move.
-
-        // Wait 100 milliseconds until animation ends.
-       // $timeout(sendComputerMove, 600);
+        $timeout(sendComputerMove, 700);
       }
     }
 
@@ -99,7 +79,7 @@ angular.module('myApp')
     function shouldSlowlyAppear (row, col) {
       var valid = state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
-      return !animationEnded && valid && 
+      return valid && 
           (playMode === "playAgainstTheComputer" && turnIndexBefore === 0 ||
           playMode === "passAndPlay" ||
           playMode === "playBlack" && turnIndexBefore === 1 || 
@@ -109,7 +89,7 @@ angular.module('myApp')
     function shouldAnimation (row, col) {
       var valid = state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
-      return  !animationEnded && valid && !shouldSlowlyAppear(row, col);
+      return valid && !shouldSlowlyAppear(row, col);
     }
 
     $scope.getClass = function (row, col) {

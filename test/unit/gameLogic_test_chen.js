@@ -597,7 +597,7 @@ describe("In Connect6", function () {
     var gameData = {totalMove: 360, winner: '', moveIndex: 1};
     var tieBoard = angular.copy(board);
     tieBoard[0][0] = 'X';
-    var possibleMoves = _gameLogic.getPossibleMoves(board, 0, gameData);
+    var possibleMoves = _gameLogic.getPossibleMoves(board, 0, {row : 0, col : 1}, gameData);
     var expectedMove = [{endMatch: {endMatchScores: [0, 0]}},
         {set: {key: 'board', value: tieBoard}},
         {set: {key: 'delta', value: {row: 0, col: 0}}},
@@ -614,7 +614,7 @@ describe("In Connect6", function () {
     B4tieBoard[0][0] = 'X';
     B4tieBoard2[0][1] = 'X';
 
-    var possibleMoves = _gameLogic.getPossibleMoves(board, 0, gameData);
+    var possibleMoves = _gameLogic.getPossibleMoves(board, 0, {row : 1, col : 0}, gameData);
     var expectedMove = [[{setTurn: {turnIndex: 0}},
             {set: {key: 'board', value: B4tieBoard}},
             {set: {key: 'delta', value: {row: 0, col: 0}}},

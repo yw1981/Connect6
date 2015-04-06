@@ -52,8 +52,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Return true if there this move can win the game.
    *  A move that can win the game is the move that connects more than 6 pieces. 
    */
-  function isWinner(board, row, col) {
-    var cur = board[row][col];
+  function isWinner(board, row, col, cur, k) {
     var i, j;
     //check row
     i = row - 1;
@@ -64,7 +63,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[j][col] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -77,7 +76,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[row][j] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -90,7 +89,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col + j < board.length && board[row + j][col + j] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -103,7 +102,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -142,8 +141,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
     gameDataAfterMove.moveIndex = (gameDataAfterMove.moveIndex + 1) % 4;
     gameDataAfterMove.totalMove++; // increase total moves;
     boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
-    winner = isWinner(boardAfterMove, row, col) ? boardAfterMove[row][col] : '';
-
+    winner = isWinner(boardAfterMove, row, col, boardAfterMove[row][col], 6) ? boardAfterMove[row][col] : '';
+    
     if (winner !== '' || isTie(gameDataAfterMove)) {
       // Game over.
       firstOperation = {endMatch: {endMatchScores:
@@ -163,19 +162,63 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Returns all the possible moves for the given board and turnIndexBeforeMove.
    * Returns an empty array if the game is over.
    */
-  function getPossibleMoves(board, turnIndexBeforeMove, gameData) {
+  function getPossibleMoves(board, turnIndexBeforeMove, delta, gameData) {
     var possibleMoves = [];
-    var i, j;
-    for (i = 0; i < 19; i++) {
-      for (j = 0; j < 19; j++) {
-        try {
-          possibleMoves.push(createMove(board, i, j, turnIndexBeforeMove, gameData));
-        } catch (ignore) {
-          // The cell in that position was full.
-        }
+    var winningMoves = []; // moves can lead to win
+    var threatMoves = [];  // moves can lead opponent to win
+
+    if(delta === undefined) {
+      delta = {row : 0, col : 0};
+    }
+    var row = delta.row, col = delta.col, max = Math.max(18 - row, row, 18 - col, col) * 2 + 1;
+    var n = 0, m = 0, i;
+    while (true) {
+      if (++n === max) {
+        break;
+      }
+      for (i = 0; i < n; i++) {
+        addMove(row, ++col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+      }
+      if (++m === max) {
+        break;
+      }
+      for (i = 0; i < m; i++) {
+        addMove(++row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+      }
+      if (++n === max) {
+        break;
+      }
+      for (i = 0; i < n; i++) {
+        addMove(row, --col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+      }
+      if (++m === max) {
+        break;
+      }
+      for(i = 0; i < m; i++){
+        addMove(--row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
       }
     }
-    return possibleMoves;
+    return winningMoves.concat(threatMoves.concat(possibleMoves));
+  }
+
+  function addMove(row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves) {
+    if (row < 0 || row > 18 || col < 0 || col > 18) {
+      return ;
+    }
+    var move;
+    var piece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    try {
+      move = createMove(board, row, col, turnIndexBeforeMove, gameData);
+      if (move[0].endMatch) {
+        winningMoves.push(move);
+      } else if (isWinner(board, row, col, piece, 5)) {
+        threatMoves.push(move);
+      } else {
+        possibleMoves.push(move);
+      }
+    } catch (ignore) {
+      // The cell in that position was full.
+    }
   }
 
   function isMoveOk(params) {

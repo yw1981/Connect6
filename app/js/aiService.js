@@ -15,7 +15,7 @@ angular.module('myApp').factory('aiService',
   }
 
   function getNextStates(move, playerIndex) {
-    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[3].set.value);
+    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
   }
 
   function getDebugStateToString(move) {
@@ -28,7 +28,7 @@ angular.module('myApp').factory('aiService',
    * and it has either a millisecondsLimit or maxDepth field:
    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
    */
-  function createComputerMove(board, playerIndex, gameData, alphaBetaLimits) {
+  function createComputerMove(state, playerIndex, alphaBetaLimits) {
     // We use alpha-beta search, where the search states are TicTacToe moves.
     // Recal that a TicTacToe move has 3 operations:
     // 1) endMatch or setTurn
@@ -36,7 +36,9 @@ angular.module('myApp').factory('aiService',
     // 3) {set: {key: 'delta', value: ...}}]
     // 4) {set: {key: 'gameData', value: ...}}]
     return alphaBetaService.alphaBetaDecision(
-      [null, {set: {key: 'board', value: board}}, null, {set: {key: 'gameData', value: gameData}}],
+      [null, {set: {key: 'board', value: state.board}},
+        {set: {key: 'delta', value: state.delta}},
+        {set: {key: 'gameData', value: state.gameData}}],
       playerIndex,
       getNextStates,
       getStateScoreForIndex0,

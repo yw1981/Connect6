@@ -52,8 +52,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Return true if there this move can win the game.
    *  A move that can win the game is the move that connects more than 6 pieces. 
    */
-  function isWinner(board, row, col) {
-    var cur = board[row][col];
+  function isWinner(board, row, col, cur, k) {
     var i, j;
     //check row
     i = row - 1;
@@ -64,7 +63,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[j][col] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -77,7 +76,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[row][j] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -90,7 +89,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col + j < board.length && board[row + j][col + j] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -103,7 +102,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === cur) {
       j++;
     }
-    if (j - i - 1 >= 6) {
+    if (j - i - 1 >= k) {
       return true;
     }
 
@@ -142,8 +141,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
     gameDataAfterMove.moveIndex = (gameDataAfterMove.moveIndex + 1) % 4;
     gameDataAfterMove.totalMove++; // increase total moves;
     boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
-    winner = isWinner(boardAfterMove, row, col) ? boardAfterMove[row][col] : '';
-
+    winner = isWinner(boardAfterMove, row, col, boardAfterMove[row][col], 6) ? boardAfterMove[row][col] : '';
+    
     if (winner !== '' || isTie(gameDataAfterMove)) {
       // Game over.
       firstOperation = {endMatch: {endMatchScores:
@@ -163,19 +162,63 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Returns all the possible moves for the given board and turnIndexBeforeMove.
    * Returns an empty array if the game is over.
    */
-  function getPossibleMoves(board, turnIndexBeforeMove, gameData) {
+  function getPossibleMoves(board, turnIndexBeforeMove, delta, gameData) {
     var possibleMoves = [];
-    var i, j;
-    for (i = 0; i < 19; i++) {
-      for (j = 0; j < 19; j++) {
-        try {
-          possibleMoves.push(createMove(board, i, j, turnIndexBeforeMove, gameData));
-        } catch (ignore) {
-          // The cell in that position was full.
-        }
+    var winningMoves = []; // moves can lead to win
+    var threatMoves = [];  // moves can lead opponent to win
+
+    if(delta === undefined) {
+      delta = {row : 0, col : 0};
+    }
+    var row = delta.row, col = delta.col, max = Math.max(18 - row, row, 18 - col, col) * 2 + 1;
+    var n = 0, m = 0, i;
+    while (true) {
+      if (++n === max) {
+        break;
+      }
+      for (i = 0; i < n; i++) {
+        addMove(row, ++col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+      }
+      if (++m === max) {
+        break;
+      }
+      for (i = 0; i < m; i++) {
+        addMove(++row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+      }
+      if (++n === max) {
+        break;
+      }
+      for (i = 0; i < n; i++) {
+        addMove(row, --col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+      }
+      if (++m === max) {
+        break;
+      }
+      for(i = 0; i < m; i++){
+        addMove(--row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
       }
     }
-    return possibleMoves;
+    return winningMoves.concat(threatMoves.concat(possibleMoves));
+  }
+
+  function addMove(row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves) {
+    if (row < 0 || row > 18 || col < 0 || col > 18) {
+      return ;
+    }
+    var move;
+    var piece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    try {
+      move = createMove(board, row, col, turnIndexBeforeMove, gameData);
+      if (move[0].endMatch) {
+        winningMoves.push(move);
+      } else if (isWinner(board, row, col, piece, 5)) {
+        threatMoves.push(move);
+      } else {
+        possibleMoves.push(move);
+      }
+    } catch (ignore) {
+      // The cell in that position was full.
+    }
   }
 
   function isMoveOk(params) {
@@ -219,7 +262,6 @@ angular.module('myApp', []).factory('gameLogic', function () {
 
     resizeGameAreaService.setWidthToHeight(1);
 
-    var animationEnded = false;
     var canMakeMove = false;
     var isComputerTurn = false;
     var state = null;
@@ -227,32 +269,15 @@ angular.module('myApp', []).factory('gameLogic', function () {
     var turnIndexBefore = null;
     var playMode = null;
 
-    function animationEndedCallback() {
-      $rootScope.$apply(function () {
-        $log.info("Animation ended");
-        animationEnded = true;
-        if (isComputerTurn) {
-          sendComputerMove();
-        }
-      });
-    }
-
-    document.addEventListener("animationend", animationEndedCallback, false); // standard
-    document.addEventListener("webkitAnimationEnd", animationEndedCallback, false); // WebKit
-    document.addEventListener("oanimationend", animationEndedCallback, false); // Opera
-
     function sendComputerMove() {
-      var possibleMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.gameData);
-      var index = Math.floor(Math.random() * possibleMoves.length);
-      gameService.makeMove(possibleMoves[index]);
-      //gameService.makeMove(
-          //aiService.createComputerMove($scope.board, $scope.turnIndex, $scope.gameData,
-              // 0.3 seconds for the AI to choose a move
-          //{millisecondsLimit: 300}));
+      //var possibleMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.delta, state.gameData);
+      //gameService.makeMove(possibleMoves[0]);
+      gameService.makeMove(
+        aiService.createComputerMove(state, turnIndex,
+        {millisecondsLimit: 1000}));
     }
 
     function updateUI(params) {
-      animationEnded = false;
       state = params.stateAfterMove;
       playMode = params.playMode;
       turnIndexBefore = params.turnIndexBeforeMove;
@@ -271,9 +296,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
           params.playersInfo[params.yourPlayerIndex].playerId === '';
       if (isComputerTurn) {
         canMakeMove = false; // to make sure the UI won't send another move.
-
-        // Wait 100 milliseconds until animation ends.
-       // $timeout(sendComputerMove, 600);
+        $timeout(sendComputerMove, 700);
       }
     }
 
@@ -308,7 +331,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     function shouldSlowlyAppear (row, col) {
       var valid = state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
-      return !animationEnded && valid && 
+      return valid && 
           (playMode === "playAgainstTheComputer" && turnIndexBefore === 0 ||
           playMode === "passAndPlay" ||
           playMode === "playBlack" && turnIndexBefore === 1 || 
@@ -318,7 +341,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     function shouldAnimation (row, col) {
       var valid = state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
-      return  !animationEnded && valid && !shouldSlowlyAppear(row, col);
+      return valid && !shouldSlowlyAppear(row, col);
     }
 
     $scope.getClass = function (row, col) {
@@ -441,7 +464,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
   }
 
   function getNextStates(move, playerIndex) {
-    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[3].set.value);
+    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
   }
 
   function getDebugStateToString(move) {
@@ -454,7 +477,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * and it has either a millisecondsLimit or maxDepth field:
    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
    */
-  function createComputerMove(board, playerIndex, gameData, alphaBetaLimits) {
+  function createComputerMove(state, playerIndex, alphaBetaLimits) {
     // We use alpha-beta search, where the search states are TicTacToe moves.
     // Recal that a TicTacToe move has 3 operations:
     // 1) endMatch or setTurn
@@ -462,7 +485,9 @@ angular.module('myApp', []).factory('gameLogic', function () {
     // 3) {set: {key: 'delta', value: ...}}]
     // 4) {set: {key: 'gameData', value: ...}}]
     return alphaBetaService.alphaBetaDecision(
-      [null, {set: {key: 'board', value: board}}, null, {set: {key: 'gameData', value: gameData}}],
+      [null, {set: {key: 'board', value: state.board}},
+        {set: {key: 'delta', value: state.delta}},
+        {set: {key: 'gameData', value: state.gameData}}],
       playerIndex,
       getNextStates,
       getStateScoreForIndex0,
