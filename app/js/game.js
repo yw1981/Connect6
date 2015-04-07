@@ -20,7 +20,7 @@ angular.module('myApp')
     function sendComputerMove() {
       gameService.makeMove(
         aiService.createComputerMove(state, turnIndex,
-        {maxDepth: 1000}));
+        {maxDepth: 1}));
     }
 
     function updateUI(params) {
