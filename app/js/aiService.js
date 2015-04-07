@@ -11,11 +11,66 @@ angular.module('myApp').factory('aiService',
           : endMatchScores[0] < endMatchScores[1] ? Number.NEGATIVE_INFINITY
           : 0;
     }
-    return 0;
+    var board = move[1].set.value;
+    var row = move[2].set.value.row;
+    var col = move[2].set.value.col;
+    var black = getPieces(board, row, col, "X");
+    var white = getPieces(board, row, col, "O");
+    return white - black;
+  }
+  
+  //get consecutive piece around the row x col
+  function getPieces(board, row, col, piece) {
+    var i, j, sum = 0;
+    //check row
+    i = row - 1;
+    j = row + 1;
+    while (i >= 0 && board[i][col] === piece) {
+      i--;
+    }
+    while (j < board.length && board[j][col] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+
+    //check column
+    i = col - 1;
+    j = col + 1;
+    while (i >= 0 && board[row][i] === piece) {
+      i--;
+    }
+    while (j < board.length && board[row][j] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+
+    //check main diagonal
+    i = -1;
+    j = 1;
+    while (row + i >= 0 && col + i >= 0 && board[row + i][col + i] === piece) {
+      i--;
+    }
+    while (row + j < board.length && col + j < board.length && board[row + j][col + j] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+
+    //check back diagonal
+    i = -1;
+    j = 1;
+    while (row + i >= 0 && col - i < board.length && board[row + i][col - i] === piece) {
+      i--;
+    }
+    while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+    return sum;
   }
 
   function getNextStates(move, playerIndex) {
-    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
+    var allMoves = gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
+    return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
   }
 
   function getDebugStateToString(move) {

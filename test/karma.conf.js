@@ -13,6 +13,9 @@ module.exports = function (config) {
       'test/unit/gameLogic_test.js',
       'test/unit/gameLogic_test_chen.js',
       'test/unit/gameLogic_test_HuiYang.js',
+      'http://yoav-zibin.github.io/emulator/alphaBetaService.js',
+      'app/js/aiService.js',
+      'test/unit/aiService_test.js'
     ],
 
     reporters: ['progress', 'coverage'],

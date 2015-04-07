@@ -198,7 +198,11 @@ angular.module('myApp', []).factory('gameLogic', function () {
         addMove(--row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
       }
     }
-    return winningMoves.concat(threatMoves.concat(possibleMoves));
+    return {
+      winMoves : winningMoves,
+      threatMoves : threatMoves,
+      possibleMoves : possibleMoves
+    };
   }
 
   function addMove(row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves) {
@@ -206,12 +210,13 @@ angular.module('myApp', []).factory('gameLogic', function () {
       return ;
     }
     var move;
-    var piece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    var oppoPiece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    var piece = turnIndexBeforeMove === 0 ? 'X' : 'O';
     try {
       move = createMove(board, row, col, turnIndexBeforeMove, gameData);
-      if (move[0].endMatch) {
+      if (move[0].endMatch || isWinner(board, row, col, piece, 5) ) {
         winningMoves.push(move);
-      } else if (isWinner(board, row, col, piece, 5)) {
+      } else if (isWinner(board, row, col, oppoPiece, 5)) {
         threatMoves.push(move);
       } else {
         possibleMoves.push(move);
@@ -247,6 +252,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     getInitialGameData: getInitialGameData,
     getPossibleMoves: getPossibleMoves,
     createMove: createMove,
-    isMoveOk: isMoveOk
+    isMoveOk: isMoveOk,
+    isWinner: isWinner
   };
 });

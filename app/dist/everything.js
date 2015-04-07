@@ -198,7 +198,11 @@ angular.module('myApp', []).factory('gameLogic', function () {
         addMove(--row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
       }
     }
-    return winningMoves.concat(threatMoves.concat(possibleMoves));
+    return {
+      winMoves : winningMoves,
+      threatMoves : threatMoves,
+      possibleMoves : possibleMoves
+    };
   }
 
   function addMove(row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves) {
@@ -206,12 +210,13 @@ angular.module('myApp', []).factory('gameLogic', function () {
       return ;
     }
     var move;
-    var piece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    var oppoPiece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    var piece = turnIndexBeforeMove === 0 ? 'X' : 'O';
     try {
       move = createMove(board, row, col, turnIndexBeforeMove, gameData);
-      if (move[0].endMatch) {
+      if (move[0].endMatch || isWinner(board, row, col, piece, 5) ) {
         winningMoves.push(move);
-      } else if (isWinner(board, row, col, piece, 5)) {
+      } else if (isWinner(board, row, col, oppoPiece, 5)) {
         threatMoves.push(move);
       } else {
         possibleMoves.push(move);
@@ -247,7 +252,8 @@ angular.module('myApp', []).factory('gameLogic', function () {
     getInitialGameData: getInitialGameData,
     getPossibleMoves: getPossibleMoves,
     createMove: createMove,
-    isMoveOk: isMoveOk
+    isMoveOk: isMoveOk,
+    isWinner: isWinner
   };
 });
 ;angular.module('myApp')
@@ -270,11 +276,18 @@ angular.module('myApp', []).factory('gameLogic', function () {
     var playMode = null;
 
     function sendComputerMove() {
-      //var possibleMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.delta, state.gameData);
-      //gameService.makeMove(possibleMoves[0]);
-      gameService.makeMove(
-        aiService.createComputerMove(state, turnIndex,
-        {millisecondsLimit: 1000}));
+      var allMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.delta, state.gameData);
+      var winMoves = allMoves.winMoves;
+      var threatMoves = allMoves.threatMoves;
+      if (winMoves.length !== 0) {
+        gameService.makeMove(winMoves[0]);
+      } else if (threatMoves.length !== 0) {
+        gameService.makeMove(threatMoves[0]);
+      } else {
+        gameService.makeMove(
+          aiService.createComputerMove(state, turnIndex,
+          {millisecondsLimit: 1500}));
+      }
     }
 
     function updateUI(params) {
@@ -460,11 +473,66 @@ angular.module('myApp', []).factory('gameLogic', function () {
           : endMatchScores[0] < endMatchScores[1] ? Number.NEGATIVE_INFINITY
           : 0;
     }
-    return 0;
+    var board = move[1].set.value;
+    var row = move[2].set.value.row;
+    var col = move[2].set.value.col;
+    var black = getPieces(board, row, col, "X");
+    var white = getPieces(board, row, col, "O");
+    return white - black;
+  }
+  
+  //get consecutive piece around the row x col
+  function getPieces(board, row, col, piece) {
+    var i, j, sum = 0;
+    //check row
+    i = row - 1;
+    j = row + 1;
+    while (i >= 0 && board[i][col] === piece) {
+      i--;
+    }
+    while (j < board.length && board[j][col] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+
+    //check column
+    i = col - 1;
+    j = col + 1;
+    while (i >= 0 && board[row][i] === piece) {
+      i--;
+    }
+    while (j < board.length && board[row][j] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+
+    //check main diagonal
+    i = -1;
+    j = 1;
+    while (row + i >= 0 && col + i >= 0 && board[row + i][col + i] === piece) {
+      i--;
+    }
+    while (row + j < board.length && col + j < board.length && board[row + j][col + j] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+
+    //check back diagonal
+    i = -1;
+    j = 1;
+    while (row + i >= 0 && col - i < board.length && board[row + i][col - i] === piece) {
+      i--;
+    }
+    while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === piece) {
+      j++;
+    }
+    sum += j - i - 2;
+    return sum;
   }
 
   function getNextStates(move, playerIndex) {
-    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
+    var allMoves = gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
+    return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
   }
 
   function getDebugStateToString(move) {
