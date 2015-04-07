@@ -52,9 +52,9 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Return true if there this move can win the game.
    *  A move that can win the game is the move that connects more than 6 pieces. 
    */
-  function isWinner(board, row, col, cur, k) {
+  function isWinner(board, row, col, cur) {
     var i, j;
-    //check row
+    //check col
     i = row - 1;
     j = row + 1;
     while (i >= 0 && board[i][col] === cur) {
@@ -63,11 +63,11 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[j][col] === cur) {
       j++;
     }
-    if (j - i - 1 >= k) {
+    if (j - i - 1 >= 6) {
       return true;
     }
 
-    //check column
+    //check row
     i = col - 1;
     j = col + 1;
     while (i >= 0 && board[row][i] === cur) {
@@ -76,7 +76,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[row][j] === cur) {
       j++;
     }
-    if (j - i - 1 >= k) {
+    if (j - i - 1 >= 6) {
       return true;
     }
 
@@ -89,7 +89,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col + j < board.length && board[row + j][col + j] === cur) {
       j++;
     }
-    if (j - i - 1 >= k) {
+    if (j - i - 1 >= 6) {
       return true;
     }
 
@@ -102,13 +102,101 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === cur) {
       j++;
     }
-    if (j - i - 1 >= k) {
+    if (j - i - 1 >= 6) {
       return true;
     }
 
     //No six in a row, return false.
     return false;
   }
+
+  /** 
+   * Return true if there this move can cause threats such as four in a row
+   * or five in a row.
+   */
+  function isThreat(board, row, col, cur){
+    var i, j, diff, count = 0;
+    //check col
+    i = row - 1;
+    j = row + 1;
+
+    while (i >= 0 && board[i][col] === cur) {
+      i--;
+    }
+    while (j < board.length && board[j][col] === cur) {
+      j++;
+    }
+    diff = j - i - 1;
+    if (diff === 5 && (j < board.length && board[j][col] === "" ||
+        i >= 0 && board[i][col] === "") || diff === 6) {
+      return 1;
+    }
+    if (diff === 3 && j < board.length && board[j][col] === "" &&
+        i >= 0 && board[i][col] === "" || diff === 4) {
+      count++;
+    }
+
+    //check row
+    i = col - 1;
+    j = col + 1;
+    while (i >= 0 && board[row][i] === cur) {
+      i--;
+    }
+    while (j < board.length && board[row][j] === cur) {
+      j++;
+    }
+    diff = j - i - 1;
+    if (diff === 5 && (j < board.length && board[row][j] === "" ||
+        i >= 0 && board[row][i] === "") || diff === 6) {
+      return 1;
+    }
+    if (diff === 3 && j < board.length && board[row][j] === "" &&
+        i >= 0 && board[row][i] === "" || diff === 4) {
+      count++;
+    }
+
+    //check main diagonal
+    i = -1;
+    j = 1;
+    while (row + i >= 0 && col + i >= 0 && board[row + i][col + i] === cur) {
+      i--;
+    }
+    while (row + j < board.length && col + j < board.length && board[row + j][col + j] === cur) {
+      j++;
+    }
+    diff = j - i - 1;
+    if (diff === 5 && (row + j < board.length && board[row + j][col + j] === "" ||
+        row + i >= 0 && board[row + i][col + i] === "") ||
+        diff === 6) {
+      return 1;
+    }
+    if (diff === 3 && row + j < board.length && board[row + j][col + j] === "" &&
+        row + i >= 0 && board[row + i][col + i] === "" || diff === 4) {
+      count++;
+    }
+
+    //check back diagonal
+    i = -1;
+    j = 1;
+    while (row + i >= 0 && col - i < board.length && board[row + i][col - i] === cur) {
+      i--;
+    }
+    while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === cur) {
+      j++;
+    }
+    diff = j - i - 1;
+    if (diff === 5 && (row + j < board.length && board[row + j][col - j] === "" ||
+        row + i >= 0 && board[row + i][col - i] === "") ||
+        diff === 6) {
+      return 1;
+    }
+    if (diff === 3 && row + j < board.length && board[row + j][col - j] === "" &&
+        row + i >= 0 && board[row + i][col - i] === "" || diff === 4) {
+      count++;
+    }
+    //No six in a row, return false.
+    return count >= 2 ? 2 : 0;
+   }
 
   /**
    * Returns the move that should be performed when player
@@ -141,7 +229,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     gameDataAfterMove.moveIndex = (gameDataAfterMove.moveIndex + 1) % 4;
     gameDataAfterMove.totalMove++; // increase total moves;
     boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
-    winner = isWinner(boardAfterMove, row, col, boardAfterMove[row][col], 6) ? boardAfterMove[row][col] : '';
+    winner = isWinner(boardAfterMove, row, col, boardAfterMove[row][col]) ? boardAfterMove[row][col] : '';
     
     if (winner !== '' || isTie(gameDataAfterMove)) {
       // Game over.
@@ -162,13 +250,15 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * Returns all the possible moves for the given board and turnIndexBeforeMove.
    * Returns an empty array if the game is over.
    */
-  function getPossibleMoves(board, turnIndexBeforeMove, delta, gameData) {
+  function getDifferentMoves(board, turnIndexBeforeMove, delta, gameData) {
     var possibleMoves = [];
     var winningMoves = []; // moves can lead to win
     var threatMoves = [];  // moves can lead opponent to win
+    var twoThreeMoves = [];
+    var oppTwoThreeMoves = [];
 
     if(delta === undefined) {
-      delta = {row : 0, col : 0};
+      delta = {row : 9, col : 8};
     }
     var row = delta.row, col = delta.col, max = Math.max(18 - row, row, 18 - col, col) * 2 + 1;
     var n = 0, m = 0, i;
@@ -177,35 +267,45 @@ angular.module('myApp', []).factory('gameLogic', function () {
         break;
       }
       for (i = 0; i < n; i++) {
-        addMove(row, ++col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+        addMove(row, ++col, board, turnIndexBeforeMove, gameData,
+            winningMoves, threatMoves, possibleMoves, oppTwoThreeMoves, twoThreeMoves);
       }
       if (++m === max) {
         break;
       }
       for (i = 0; i < m; i++) {
-        addMove(++row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+        addMove(++row, col, board, turnIndexBeforeMove, gameData,
+            winningMoves, threatMoves, possibleMoves, oppTwoThreeMoves, twoThreeMoves);
       }
       if (++n === max) {
         break;
       }
       for (i = 0; i < n; i++) {
-        addMove(row, --col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+        addMove(row, --col, board, turnIndexBeforeMove, gameData,
+            winningMoves, threatMoves, possibleMoves, oppTwoThreeMoves, twoThreeMoves);
       }
       if (++m === max) {
         break;
       }
       for(i = 0; i < m; i++){
-        addMove(--row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves);
+        addMove(--row, col, board, turnIndexBeforeMove, gameData,
+            winningMoves, threatMoves, possibleMoves, oppTwoThreeMoves, twoThreeMoves);
       }
     }
     return {
       winMoves : winningMoves,
-      threatMoves : threatMoves,
+      threatMoves : threatMoves.concat(oppTwoThreeMoves.concat(twoThreeMoves)),
       possibleMoves : possibleMoves
     };
   }
 
-  function addMove(row, col, board, turnIndexBeforeMove, gameData, winningMoves, threatMoves, possibleMoves) {
+  function getPossibleMoves(board, turnIndexBeforeMove, delta, gameData) {
+    var allMoves = getDifferentMoves(board, turnIndexBeforeMove, delta, gameData);
+    return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
+  }
+
+  function addMove(row, col, board, turnIndexBeforeMove, gameData, 
+    winningMoves, threatMoves, possibleMoves, oppTwoThreeMoves, twoThreeMoves) {
     if (row < 0 || row > 18 || col < 0 || col > 18) {
       return ;
     }
@@ -214,10 +314,16 @@ angular.module('myApp', []).factory('gameLogic', function () {
     var piece = turnIndexBeforeMove === 0 ? 'X' : 'O';
     try {
       move = createMove(board, row, col, turnIndexBeforeMove, gameData);
-      if (move[0].endMatch || isWinner(board, row, col, piece, 5) ) {
+      var oppThreat = isThreat(board, row, col, oppoPiece);
+      var threat = isThreat(board, row, col, piece);
+      if (move[0].endMatch || threat === 1 && (gameData.moveIndex === 2 || gameData.moveIndex === 0)) {
         winningMoves.push(move);
-      } else if (isWinner(board, row, col, oppoPiece, 5)) {
+      } else if (oppThreat === 1) {
         threatMoves.push(move);
+      } else if (oppThreat === 2) {
+        oppTwoThreeMoves.push(move);
+      } else if (threat === 2) {
+        twoThreeMoves.push(move);
       } else {
         possibleMoves.push(move);
       }
@@ -251,9 +357,9 @@ angular.module('myApp', []).factory('gameLogic', function () {
     getInitialBoard: getInitialBoard,
     getInitialGameData: getInitialGameData,
     getPossibleMoves: getPossibleMoves,
+    getDifferentMoves: getDifferentMoves,
     createMove: createMove,
-    isMoveOk: isMoveOk,
-    isWinner: isWinner
+    isMoveOk: isMoveOk
   };
 });
 ;angular.module('myApp')
@@ -276,18 +382,9 @@ angular.module('myApp', []).factory('gameLogic', function () {
     var playMode = null;
 
     function sendComputerMove() {
-      var allMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.delta, state.gameData);
-      var winMoves = allMoves.winMoves;
-      var threatMoves = allMoves.threatMoves;
-      if (winMoves.length !== 0) {
-        gameService.makeMove(winMoves[0]);
-      } else if (threatMoves.length !== 0) {
-        gameService.makeMove(threatMoves[0]);
-      } else {
-        gameService.makeMove(
-          aiService.createComputerMove(state, turnIndex,
-          {millisecondsLimit: 1500}));
-      }
+      gameService.makeMove(
+        aiService.createComputerMove(state, turnIndex,
+        {maxDepth: 1000}));
     }
 
     function updateUI(params) {
@@ -493,6 +590,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[j][col] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
 
     //check column
@@ -504,6 +602,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (j < board.length && board[row][j] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
 
     //check main diagonal
@@ -515,6 +614,7 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col + j < board.length && board[row + j][col + j] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
 
     //check back diagonal
@@ -526,13 +626,13 @@ angular.module('myApp', []).factory('gameLogic', function () {
     while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
     return sum;
   }
 
   function getNextStates(move, playerIndex) {
-    var allMoves = gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
-    return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
+    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
   }
 
   function getDebugStateToString(move) {
@@ -546,24 +646,33 @@ angular.module('myApp', []).factory('gameLogic', function () {
    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
    */
   function createComputerMove(state, playerIndex, alphaBetaLimits) {
-    // We use alpha-beta search, where the search states are TicTacToe moves.
-    // Recal that a TicTacToe move has 3 operations:
-    // 1) endMatch or setTurn
-    // 2) {set: {key: 'board', value: ...}}
-    // 3) {set: {key: 'delta', value: ...}}]
-    // 4) {set: {key: 'gameData', value: ...}}]
-    return alphaBetaService.alphaBetaDecision(
-      [null, {set: {key: 'board', value: state.board}},
-        {set: {key: 'delta', value: state.delta}},
-        {set: {key: 'gameData', value: state.gameData}}],
-      playerIndex,
-      getNextStates,
-      getStateScoreForIndex0,
-      // If you want to see debugging output in the console, then pass
-      // getDebugStateToString instead of null
-      window.location.search === '?debug' ? getDebugStateToString : null,
-      alphaBetaLimits
-    );
+    var allMoves = gameLogic.getDifferentMoves(state.board, playerIndex, state.delta, state.gameData);
+    var winMoves = allMoves.winMoves;
+    var threatMoves = allMoves.threatMoves;
+    if (winMoves.length !== 0) {
+      return winMoves[0];
+    } else if (threatMoves.length !== 0) {
+      return threatMoves[0];
+    } else {
+      // We use alpha-beta search, where the search states are TicTacToe moves.
+      // Recal that a TicTacToe move has 3 operations:
+      // 1) endMatch or setTurn
+      // 2) {set: {key: 'board', value: ...}}
+      // 3) {set: {key: 'delta', value: ...}}]
+      // 4) {set: {key: 'gameData', value: ...}}]
+      return alphaBetaService.alphaBetaDecision(
+        [null, {set: {key: 'board', value: state.board}},
+          {set: {key: 'delta', value: state.delta}},
+          {set: {key: 'gameData', value: state.gameData}}],
+        playerIndex,
+        getNextStates,
+        getStateScoreForIndex0,
+        // If you want to see debugging output in the console, then pass
+        // getDebugStateToString instead of null
+        window.location.search === '?debug' ? getDebugStateToString : null,
+        alphaBetaLimits
+      );
+    }
   }
 
   return {createComputerMove: createComputerMove};

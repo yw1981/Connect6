@@ -18,18 +18,9 @@ angular.module('myApp')
     var playMode = null;
 
     function sendComputerMove() {
-      var allMoves = gameLogic.getPossibleMoves(state.board, turnIndex, state.delta, state.gameData);
-      var winMoves = allMoves.winMoves;
-      var threatMoves = allMoves.threatMoves;
-      if (winMoves.length !== 0) {
-        gameService.makeMove(winMoves[0]);
-      } else if (threatMoves.length !== 0) {
-        gameService.makeMove(threatMoves[0]);
-      } else {
-        gameService.makeMove(
-          aiService.createComputerMove(state, turnIndex,
-          {millisecondsLimit: 1500}));
-      }
+      gameService.makeMove(
+        aiService.createComputerMove(state, turnIndex,
+        {maxDepth: 1000}));
     }
 
     function updateUI(params) {

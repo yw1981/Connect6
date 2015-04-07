@@ -31,6 +31,7 @@ angular.module('myApp').factory('aiService',
     while (j < board.length && board[j][col] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
 
     //check column
@@ -42,6 +43,7 @@ angular.module('myApp').factory('aiService',
     while (j < board.length && board[row][j] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
 
     //check main diagonal
@@ -53,6 +55,7 @@ angular.module('myApp').factory('aiService',
     while (row + j < board.length && col + j < board.length && board[row + j][col + j] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
 
     //check back diagonal
@@ -64,13 +67,13 @@ angular.module('myApp').factory('aiService',
     while (row + j < board.length && col - j >= 0 && board[row + j][col - j] === piece) {
       j++;
     }
+    //sum = Math.max(sum, j - i - 2);
     sum += j - i - 2;
     return sum;
   }
 
   function getNextStates(move, playerIndex) {
-    var allMoves = gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
-    return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
+    return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
   }
 
   function getDebugStateToString(move) {
@@ -84,24 +87,33 @@ angular.module('myApp').factory('aiService',
    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
    */
   function createComputerMove(state, playerIndex, alphaBetaLimits) {
-    // We use alpha-beta search, where the search states are TicTacToe moves.
-    // Recal that a TicTacToe move has 3 operations:
-    // 1) endMatch or setTurn
-    // 2) {set: {key: 'board', value: ...}}
-    // 3) {set: {key: 'delta', value: ...}}]
-    // 4) {set: {key: 'gameData', value: ...}}]
-    return alphaBetaService.alphaBetaDecision(
-      [null, {set: {key: 'board', value: state.board}},
-        {set: {key: 'delta', value: state.delta}},
-        {set: {key: 'gameData', value: state.gameData}}],
-      playerIndex,
-      getNextStates,
-      getStateScoreForIndex0,
-      // If you want to see debugging output in the console, then pass
-      // getDebugStateToString instead of null
-      window.location.search === '?debug' ? getDebugStateToString : null,
-      alphaBetaLimits
-    );
+    var allMoves = gameLogic.getDifferentMoves(state.board, playerIndex, state.delta, state.gameData);
+    var winMoves = allMoves.winMoves;
+    var threatMoves = allMoves.threatMoves;
+    if (winMoves.length !== 0) {
+      return winMoves[0];
+    } else if (threatMoves.length !== 0) {
+      return threatMoves[0];
+    } else {
+      // We use alpha-beta search, where the search states are TicTacToe moves.
+      // Recal that a TicTacToe move has 3 operations:
+      // 1) endMatch or setTurn
+      // 2) {set: {key: 'board', value: ...}}
+      // 3) {set: {key: 'delta', value: ...}}]
+      // 4) {set: {key: 'gameData', value: ...}}]
+      return alphaBetaService.alphaBetaDecision(
+        [null, {set: {key: 'board', value: state.board}},
+          {set: {key: 'delta', value: state.delta}},
+          {set: {key: 'gameData', value: state.gameData}}],
+        playerIndex,
+        getNextStates,
+        getStateScoreForIndex0,
+        // If you want to see debugging output in the console, then pass
+        // getDebugStateToString instead of null
+        window.location.search === '?debug' ? getDebugStateToString : null,
+        alphaBetaLimits
+      );
+    }
   }
 
   return {createComputerMove: createComputerMove};
