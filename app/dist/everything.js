@@ -365,12 +365,13 @@ angular.module('myApp', []).factory('gameLogic', function () {
 ;angular.module('myApp')
   .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
     'gameService', 'stateService', 'gameLogic', 'aiService', 
-    'resizeGameAreaService', 
+    'resizeGameAreaService', '$translate',
     function ($rootScope, $scope, $log, $timeout,
       gameService, stateService, gameLogic, aiService, 
-      resizeGameAreaService) {
+      resizeGameAreaService, $translate) {
 
     'use strict';
+    console.log("Translation of 'CONNECT6_GAME' is " + $translate('CONNECT6_GAME'));
 
     resizeGameAreaService.setWidthToHeight(1);
 

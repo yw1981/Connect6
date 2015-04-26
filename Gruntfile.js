@@ -85,9 +85,8 @@ module.exports = function(grunt) {
           cache: [
             'http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js',
             'http://yoav-zibin.github.io/emulator/dist/gameServices.min.js',
-            'http://yoav-zibin.github.io/emulator/angular-translate/angular-translate.2.6.1.min.js',
+            'http://yoav-zibin.github.io/emulator/angular-translate/angular-translate.min.js',
             'http://yoav-zibin.github.io/emulator/examples/drag_n_drop/dragAndDropListeners.js',
-            'languages/en.js',
             'http://yoav-zibin.github.io/emulator/main.css',
             'dist/everything.min.js',
             'css/game.css',
@@ -95,7 +94,12 @@ module.exports = function(grunt) {
             'imgsrc/white.png',
             'imgsrc/wood.jpg',
           ],
-          network: ['dist/everything.min.js.map', 'dist/everything.js'],
+          network: [
+            'dist/everything.min.js.map',
+            'languages/zh.js',
+            'languages/en.js',
+            'dist/everything.js',
+          ],
           timestamp: true
         },
         dest: 'app/game.appcache',
