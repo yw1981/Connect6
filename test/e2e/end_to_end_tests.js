@@ -62,6 +62,7 @@ describe('Connect6', function() {
   function clickDivAndExpectPiece(row, col, pieceKind) {
     getDiv(row, col).click();
     expectPiece(row, col, pieceKind);
+    browser.sleep(700);
   }
 
   // playMode is either: 'passAndPlay', 'playAgainstTheComputer', 'onlyAIs',
