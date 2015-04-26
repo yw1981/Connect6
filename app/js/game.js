@@ -1,8 +1,8 @@
 angular.module('myApp')
-  .controller('Ctrl', ['$scope', '$log', '$timeout',
+  .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
     'gameService', 'stateService', 'gameLogic', 'aiService', 
     'resizeGameAreaService', '$translate',
-    function ($scope, $log, $timeout,
+    function ($rootScope, $scope, $log, $timeout,
       gameService, stateService, gameLogic, aiService, 
       resizeGameAreaService, $translate) {
 
@@ -20,13 +20,13 @@ angular.module('myApp')
     var animationEnded = true;
 
     function animationEndedCallback() {
-      //$rootScope.$apply(function () {
-      $log.info("Animation ended");
-      animationEnded = true;
-      if (isComputerTurn) {
-        sendComputerMove();
-      }
-      //});
+      $rootScope.$apply(function () {
+        $log.info("Animation ended");
+        animationEnded = true;
+        if (isComputerTurn) {
+          sendComputerMove();
+        }
+      });
     }
 
     function sendComputerMove() {
