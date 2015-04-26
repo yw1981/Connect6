@@ -1,8 +1,8 @@
 angular.module('myApp')
-  .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
+  .controller('Ctrl', ['$scope', '$log', '$timeout',
     'gameService', 'stateService', 'gameLogic', 'aiService', 
     'resizeGameAreaService', '$translate',
-    function ($rootScope, $scope, $log, $timeout,
+    function ($scope, $log, $timeout,
       gameService, stateService, gameLogic, aiService, 
       resizeGameAreaService, $translate) {
 
@@ -17,6 +17,17 @@ angular.module('myApp')
     var turnIndex = null;
     var turnIndexBefore = null;
     var playMode = null;
+    var animationEnded = true;
+
+    function animationEndedCallback() {
+      //$rootScope.$apply(function () {
+      $log.info("Animation ended");
+      animationEnded = true;
+      if (isComputerTurn) {
+        sendComputerMove();
+      }
+      //});
+    }
 
     function sendComputerMove() {
       gameService.makeMove(
@@ -24,11 +35,17 @@ angular.module('myApp')
         {maxDepth: 1}));
     }
 
+    document.addEventListener("animationend", animationEndedCallback, false); // standard
+    document.addEventListener("webkitAnimationEnd", animationEndedCallback, false); // WebKit
+    document.addEventListener("oanimationend", animationEndedCallback, false); // Opera
+
     function updateUI(params) {
+      animationEnded = false;
       state = params.stateAfterMove;
       playMode = params.playMode;
       turnIndexBefore = params.turnIndexBeforeMove;
       if (state.board === undefined) {
+        animationEnded = true;  //first time need to be true
         state.board = gameLogic.getInitialBoard();
       }
       if (state.gameData === undefined) {
@@ -43,7 +60,11 @@ angular.module('myApp')
           params.playersInfo[params.yourPlayerIndex].playerId === '';
       if (isComputerTurn) {
         canMakeMove = false; // to make sure the UI won't send another move.
-        $timeout(sendComputerMove, 700);
+        //$timeout(sendComputerMove, 700);
+        if (state.delta === undefined) {
+          // there is not going to be an animation, so call sendComputerMove() now (can happen in ?onlyAIs mode)
+          sendComputerMove();
+        }
       }
     }
 
@@ -76,7 +97,7 @@ angular.module('myApp')
     };
 
     function shouldSlowlyAppear (row, col) {
-      var valid = state.delta !== undefined && state.delta.row === row && 
+      var valid = !animationEnded && state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
       return valid && 
           (playMode === "playAgainstTheComputer" && turnIndexBefore === 0 ||
@@ -86,7 +107,7 @@ angular.module('myApp')
     }
 
     function shouldAnimation (row, col) {
-      var valid = state.delta !== undefined && state.delta.row === row && 
+      var valid = !animationEnded && state.delta !== undefined && state.delta.row === row && 
           state.delta.col === col;
       return valid && !shouldSlowlyAppear(row, col);
     }
@@ -113,7 +134,7 @@ angular.module('myApp')
 
     function handleDragEvent(type, clientX, clientY) {
       //if not your turn, dont handle event
-      if (!canMakeMove) {
+      if (!canMakeMove || !animationEnded) {
         return;
       }
       // Center point in gameArea
@@ -171,9 +192,7 @@ angular.module('myApp')
 
     function dragDone(row, col) {
       $scope.cellClicked(row, col);
-      $rootScope.$apply(function () {
-        $log.info("Dragged to " + row + "x" + col);
-      });
+      $log.info("Dragged to " + row + "x" + col);
     }
 
     $scope.getPreviewSrc = function () {
