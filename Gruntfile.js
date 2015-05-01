@@ -74,7 +74,6 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'app/game.min.html': ['app/game.html'],
-          'app/gameScroll.min.html': ['app/gameScroll.html']
         }
       }
     },
