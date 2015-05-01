@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- build:[manifest] game.appcache -->
-<html lang="en" ng-app="myApp">
+<html lang="en" ng-app="myApp" ng-strict-di>
 <!-- /build -->
 <head>
   <meta charset="utf-8">
@@ -24,14 +24,12 @@
   <!-- /build -->
   
   <!-- build:js dist/everything.min.js -->
-  <script crossorigin="anonymous"src="js/gameLogic.js"></script>
+  <script crossorigin="anonymous" src="js/gameLogic.js"></script>
   <script crossorigin="anonymous" src="js/game.js"></script>
   <script crossorigin="anonymous" src="js/aiService.js"></script>
   <!-- /build -->
   
-  <script>
-  window.angularTranslationLanguages = ['en', 'zh'];
-  </script>
+  <script>window.angularTranslationLanguages = ['en', 'zh'];</script>
   <!-- build:js http://yoav-zibin.github.io/emulator/dist/turnBasedServices.2.min.js -->
   <script crossorigin="anonymous" src="http://yoav-zibin.github.io/emulator/dist/turnBasedServices.2.js"></script>
   <!-- /build -->
