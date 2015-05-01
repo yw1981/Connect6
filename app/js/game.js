@@ -1,13 +1,13 @@
 angular.module('myApp')
   .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
     'gameService', 'stateService', 'gameLogic', 'aiService', 
-    'resizeGameAreaService', '$translate',
+    'resizeGameAreaService', '$translate', 'dragAndDropService',
     function ($rootScope, $scope, $log, $timeout,
       gameService, stateService, gameLogic, aiService, 
-      resizeGameAreaService, $translate) {
+      resizeGameAreaService, $translate, dragAndDropService) {
 
     'use strict';
-    console.log("Translation of 'CONNECT6_GAME' is " + $translate('CONNECT6_GAME'));
+    console.log("Translation of 'RULES_OF_CONNECT6' is " + $translate('RULES_OF_CONNECT6'));
 
     resizeGameAreaService.setWidthToHeight(1);
 
@@ -204,6 +204,7 @@ angular.module('myApp')
     $scope.cols = getIntegersTill(colsNum);
     $scope.rowsNum = rowsNum;
     $scope.colsNum = colsNum;
+    dragAndDropService.addDragListener("gameArea", handleDragEvent);
 
     gameService.setGame({
       gameDeveloperEmail: "wuping.lei@nyu.edu",
