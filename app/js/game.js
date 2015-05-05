@@ -10,8 +10,7 @@ angular.module('myApp')
     console.log("Translation of 'RULES_OF_CONNECT6' is " + $translate('RULES_OF_CONNECT6'));
 
     resizeGameAreaService.setWidthToHeight(1);
-    
-    $rootScope.isHelpModalShown = false;
+
     var canMakeMove = false;
     var isComputerTurn = false;
     var state = null;
@@ -47,6 +46,7 @@ angular.module('myApp')
       turnIndexBefore = params.turnIndexBeforeMove;
       if (state.board === undefined) {
         animationEnded = true;  //first time need to be true
+        $rootScope.isHelpModalShown = false;
         state.board = gameLogic.getInitialBoard();
       }
       if (state.gameData === undefined) {
