@@ -35,7 +35,7 @@ module.exports = function(grunt) {
           browser: false, element: false, by: false, // Protractor
         },
       },
-      all: ['Gruntfile.js', 'test/karma.conf.js', 'test/protractor.conf.js', 'app/js/*.js', 'test/unit/*.js', 'test/e2e/*.js', 'app/languages/*.js']
+      all: ['Gruntfile.js', 'test/karma.conf.js', 'test/protractor.conf.js', 'app/ts_output_readonly_do_NOT_change_manually/app/src/*.js', 'test/unit/*.js', 'test/e2e/*.js', 'app/languages/*.js']
     },
     karma: {
       unit: {
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
       },
       dist: {
         // Order is important! gameLogic.js must be first because it defines myApp angular module.
-        src: ['app/js/gameLogic.js', 'app/js/game.js', 'app/js/aiService.js'],
+        src: ['app/ts_output_readonly_do_NOT_change_manually/app/src/gameLogic.js', 'app/ts_output_readonly_do_NOT_change_manually/app/src/game.js', 'app/ts_output_readonly_do_NOT_change_manually/app/src/aiService.js'],
         dest: 'app/dist/everything.js',
       },
     },
@@ -88,7 +88,7 @@ module.exports = function(grunt) {
             'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css',
             'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/fonts/glyphicons-halflings-regular.woff',
             'http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/fonts/glyphicons-halflings-regular.ttf',
-            'http://yoav-zibin.github.io/emulator/dist/turnBasedServices.2.min.js',
+            'http://yoav-zibin.github.io/emulator/dist/turnBasedServices.3.min.js',
             'http://yoav-zibin.github.io/emulator/main.css',
             'dist/everything.min.js',
             'css/game.css',
@@ -150,9 +150,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-protractor-runner');
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint', 'karma',
+  grunt.registerTask('default', ['karma',
       'concat', 'uglify',
       'processhtml', 'manifest',
-      'http-server', 'protractor']);
+      'http-server']);
 
 };

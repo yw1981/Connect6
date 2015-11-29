@@ -6,35 +6,35 @@
   <title>Connect6</title>
   <meta name="description" content="Connect6 game">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  
+
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
-  
+
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-touch.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
-  
+
   <script src="dist/everything.min.js"></script>
-  
-  <script>window.angularTranslationLanguages = ['en', 'zh'];</script>
+
+  <!-- <script>window.angularTranslationLanguages = ['en', 'zh'];</script> -->
   <script src="http://yoav-zibin.github.io/emulator/dist/turnBasedServices.2.min.js"></script>
-  
+
   <link rel="stylesheet" type="text/css" href="http://yoav-zibin.github.io/emulator/main.css">
   <link rel="stylesheet" type="text/css" href="css/game.css">
-  
+
 </head>
-<body ng-cloak ng-controller="Ctrl" >
+<body ng-cloak >
 
  <div style="position:absolute; bottom:5px; left: 5px; z-index:10;">
-    <span ng-click="isHelpModalShown = true"
+    <span ng-click="game.isHelpModalShown = true"
         class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
   </div>
 
-  <div class="overlayModal" ng-class="{zeroOpacity: !isHelpModalShown, oneOpacity: isHelpModalShown}" aria-hidden="true">
+  <div class="overlayModal" ng-class="{zeroOpacity: !game.isHelpModalShown, oneOpacity: game.isHelpModalShown}" aria-hidden="true">
     <div class="modal-backdrop in"></div>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" ng-click="isHelpModalShown = false" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <button type="button" class="close" ng-click="game.isHelpModalShown = false" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="myModalLabel">
             {{ 'RULES_OF_CONNECT6' | translate }}
           </h4>
@@ -80,14 +80,14 @@
           </carousel>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" ng-click="isHelpModalShown = false">
+          <button type="button" class="btn btn-primary" ng-click="game.isHelpModalShown = false">
             {{ 'CLOSE' | translate }}
           </button>
         </div>
       </div>
     </div>
   </div>
-  
+
 <div id="gameArea">
     <svg id="draggingLines" width="100%" height="100%"
         style="display:none; position:absolute; z-index: 30;">
@@ -103,29 +103,29 @@
             stroke-width="1%"/>
     </svg>
 
-    <img ng-attr-width="{{100 / colsNum}}%" ng-attr-height="{{100 / rowsNum}}%"
-      id="clickToDragPiece" 
-      ng-src="{{getPreviewSrc()}}"
+    <img ng-attr-width="{{100 / game.colsNum}}%" ng-attr-height="{{100 / game.rowsNum}}%"
+      id="clickToDragPiece"
+      ng-src="{{game.getPreviewSrc()}}"
       style="display:none; position:absolute; z-index: 31;" />
-    
+
   <div id="background">
-    <img id="backboard" src="imgsrc/wood.jpg"/> 
+    <img id="backboard" src="imgsrc/wood.jpg"/>
     <div id="board">
-    <div ng-repeat="row in rows"
-      style="position:absolute; top:{{row * 100 / rowsNum }}%; left:0; width:100%; height:{{100 / rowsNum }}%;">
-      <div ng-repeat="col in cols"
-        style="position:absolute; top:0; left:{{col * 100 / colsNum}}%; width:{{100 / colsNum }}%; height:100%;"
+    <div ng-repeat="row in game.rows"
+      style="position:absolute; top:{{row * 100 / game.rowsNum }}%; left:0; width:100%; height:{{100 / game.rowsNum }}%;">
+      <div ng-repeat="col in game.cols"
+        style="position:absolute; top:0; left:{{col * 100 / game.colsNum}}%; width:{{100 / game.colsNum }}%; height:100%;"
         id="{{'e2e_test_div_x' + row + 'x' + col}}">
 
-        <img ng-class="getClass(row, col)"
-          ng-show="shouldShowImage(row, col)"
-          ng-src="{{getImageSrc(row, col)}}" 
+        <img ng-class="game.getClass(row, col)"
+          ng-show="game.shouldShowImage(row, col)"
+          ng-src="{{game.getImageSrc(row, col)}}"
           id="{{'e2e_test_img_x' + row + 'x' + col}}"/>
-        <div class="click"></div>  
+        <div class="click"></div>
       </div>
-    </div>   
     </div>
-    
+    </div>
+
   </div>
 </div>
 

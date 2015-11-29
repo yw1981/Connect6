@@ -32,14 +32,5 @@
     "update-webdriver": "webdriver-manager update",
     "pretest": "npm run update-webdriver",
     "test": "grunt"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Ryanray13/Connect6.git"
-  },
-  "author": "Wuping Lei",
-  "license": "BSD-2-Clause",
-  "bugs": {
-    "url": "https://github.com/Ryanray13/Connect6/issues"
   }
 }

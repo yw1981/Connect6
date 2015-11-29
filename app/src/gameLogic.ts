@@ -1,5 +1,7 @@
-angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', function () {
+// angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', function () {
+//
 
+module gameLogic {
   'use strict';
 
   /** Returns the initial Connect6 board, which is a 19x19 matrix containing ''. */
@@ -35,7 +37,7 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
   }
 
   /** Return true if the game ended in a tie when there is no empty cells */
-  function isTie(gameData) {
+  function isTie(gameData:any) {
     //reserved for checking tie
     /*var i, j;
     for (i = 0; i < 19; i++) {
@@ -52,8 +54,8 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
    * Return true if there this move can win the game.
    *  A move that can win the game is the move that connects more than 6 pieces.
    */
-  function isWinner(board, row, col, cur) {
-    var i, j;
+  function isWinner(board:any, row:any, col:any, cur:any) {
+    var i:any, j:any;
     //check col
     i = row - 1;
     j = row + 1;
@@ -114,8 +116,8 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
    * Return true if there this move can cause threats such as four in a row
    * or five in a row.
    */
-  function isThreat(board, row, col, cur){
-    var i, j, diff, count = 0;
+  function isThreat(board:any, row:any, col:any, cur:any){
+    var i:any, j:any, diff:any, count = 0;
     //check col
     i = row - 1;
     j = row + 1;
@@ -202,7 +204,7 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
    * Returns the move that should be performed when player
    * with index turnIndexBeforeMove makes a move in cell row X col.
    */
-  function createMove(board, row, col, turnIndexBeforeMove, gameData) {
+  export function createMove(board:any, row:any, col:any, turnIndexBeforeMove:any, gameData:any) {
     if (board === undefined) {
       board = getInitialBoard();
     }
@@ -220,8 +222,8 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
 
     var boardAfterMove = angular.copy(board);
     var gameDataAfterMove = angular.copy(gameData);
-    var firstOperation;
-    var winner;
+    var firstOperation:any;
+    var winner:any;
 
     //Player has two moves each turn, thus give first two moves to 'X' and the other two as 'O'
     //Each turn increase move index and mod 4.
@@ -250,18 +252,18 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
    * Returns all the possible moves for the given board and turnIndexBeforeMove.
    * Returns an empty array if the game is over.
    */
-  function getDifferentMoves(board, turnIndexBeforeMove, delta, gameData) {
-    var possibleMoves = [];
-    var winningMoves = []; // moves can lead to win
-    var threatMoves = [];  // moves can lead opponent to win
-    var twoThreeMoves = [];
-    var oppTwoThreeMoves = [];
+  export function getDifferentMoves(board:any, turnIndexBeforeMove:any, delta:any, gameData:any) {
+    var possibleMoves:any = [];
+    var winningMoves:any = []; // moves can lead to win
+    var threatMoves:any = [];  // moves can lead opponent to win
+    var twoThreeMoves:any = [];
+    var oppTwoThreeMoves:any = [];
 
     if(delta === undefined) {
       delta = {row : 9, col : 8};
     }
     var row = delta.row, col = delta.col, max = Math.max(18 - row, row, 18 - col, col) * 2 + 1;
-    var n = 0, m = 0, i;
+    var n = 0, m = 0, i = 0;
     while (true) {
       if (++n === max) {
         break;
@@ -299,17 +301,17 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
     };
   }
 
-  function getPossibleMoves(board, turnIndexBeforeMove, delta, gameData) {
+  export function getPossibleMoves(board:any, turnIndexBeforeMove:any, delta:any, gameData:any) {
     var allMoves = getDifferentMoves(board, turnIndexBeforeMove, delta, gameData);
     return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
   }
 
-  function addMove(row, col, board, turnIndexBeforeMove, gameData,
-    winningMoves, threatMoves, possibleMoves, oppTwoThreeMoves, twoThreeMoves) {
+  function addMove(row:any, col:any, board:any, turnIndexBeforeMove:any, gameData:any,
+    winningMoves:any, threatMoves:any, possibleMoves:any, oppTwoThreeMoves:any, twoThreeMoves:any) {
     if (row < 0 || row > 18 || col < 0 || col > 18) {
       return ;
     }
-    var move;
+    var move:any;
     var oppoPiece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
     var piece = turnIndexBeforeMove === 0 ? 'X' : 'O';
     try {
@@ -332,7 +334,7 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
     }
   }
 
-  function isMoveOk(params) {
+  export function isMoveOk(params:any) {
     var move = params.move;
     var turnIndexBeforeMove = params.turnIndexBeforeMove;
     var stateBeforeMove = params.stateBeforeMove;
@@ -353,12 +355,13 @@ angular.module('myApp', ['ngTouch', 'ui.bootstrap']).factory('gameLogic', functi
     return true;
   }
 
-  return {
-    getInitialBoard: getInitialBoard,
-    getInitialGameData: getInitialGameData,
-    getPossibleMoves: getPossibleMoves,
-    getDifferentMoves: getDifferentMoves,
-    createMove: createMove,
-    isMoveOk: isMoveOk
-  };
-});
+  // return {
+  //   getInitialBoard: getInitialBoard,
+  //   getInitialGameData: getInitialGameData,
+  //   getPossibleMoves: getPossibleMoves,
+  //   getDifferentMoves: getDifferentMoves,
+  //   createMove: createMove,
+  //   isMoveOk: isMoveOk
+  // };
+// });
+}
