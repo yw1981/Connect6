@@ -2,6 +2,7 @@ declare var $rootScope: angular.IScope;
 declare var $location: angular.ILocationService;
 declare var $timeout: angular.ITimeoutService;
 declare var $interval: angular.IIntervalService;
+declare var $window: angular.IWindowService;
 
 interface ICenterXY {
    x: any;
@@ -47,12 +48,28 @@ declare type IMove = IOperation[];
 // interface IState { board?: Board; delta?: BoardDelta; }
 // You can also define it as a general mapping of string to any:
 // interface IState { [index: string]: any; }
+interface IGameData {
+    totalMove: number,
+    winner: string,
+    moveIndex: number
+}
+interface IDelta {
+    row: number,
+    col: number
+}
+
+interface IState {
+  board: string[][],
+  delta: IDelta,
+  gameData: IGameData
+}
+
 interface IIsMoveOk {
   move: IMove;
   turnIndexBeforeMove : number;
   turnIndexAfterMove: number;
-  stateBeforeMove: any; // TODO: ISTATE
-  stateAfterMove: any; // TODO： ISTATE
+  stateBeforeMove: IState;
+  stateAfterMove: IState;
   numberOfPlayers: number;
 }
 interface IPlayerInfo {

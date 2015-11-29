@@ -1,12 +1,8 @@
-// angular.module('myApp').factory('aiService',
-//   ["alphaBetaService", "gameLogic",
-//     function (alphaBetaService:any, gameLogic:any) {
-
 module aiService {
 
   'use strict';
 
-  function getStateScoreForIndex0(move:any) {
+  function getStateScoreForIndex0(move:IMove) {
     if (move[0].endMatch) {
       var endMatchScores = move[0].endMatch.endMatchScores;
       return endMatchScores[0] > endMatchScores[1] ? Number.POSITIVE_INFINITY
@@ -22,7 +18,7 @@ module aiService {
   }
 
   //get consecutive piece around the row x col
-  function getPieces(board:any, row:number, col:number, piece:any) {
+  function getPieces(board:string[][], row:number, col:number, piece:string) {
     var i:number, j:number, sum = 0;
     //check row
     i = row - 1;
@@ -74,11 +70,11 @@ module aiService {
     return sum;
   }
 
-  function getNextStates(move:any, playerIndex:number) {
+  function getNextStates(move:IMove, playerIndex:number) {
     return gameLogic.getPossibleMoves(move[1].set.value, playerIndex, move[2].set.value, move[3].set.value);
   }
 
-  function getDebugStateToString(move:any) {
+  function getDebugStateToString(move:IMove) {
     return "\n" + move[1].set.value.join("\n") + "\n";
   }
 
@@ -88,7 +84,7 @@ module aiService {
    * and it has either a millisecondsLimit or maxDepth field:
    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
    */
-  export function createComputerMove(state:any, playerIndex:number, alphaBetaLimits:IAlphaBetaLimits) {
+  export function createComputerMove(state:IState, playerIndex:number, alphaBetaLimits:IAlphaBetaLimits) {
     var allMoves = gameLogic.getDifferentMoves(state.board, playerIndex, state.delta, state.gameData);
     var winMoves = allMoves.winMoves;
     var threatMoves = allMoves.threatMoves;
@@ -118,6 +114,4 @@ module aiService {
     }
   }
 
-  //return {createComputerMove: createComputerMove};
 }
-// }]);

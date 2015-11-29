@@ -194,14 +194,6 @@ var game;
     game.getPreviewSrc = getPreviewSrc;
     ;
 })(game || (game = {}));
-// angular.module('myApp')
-//   .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
-//     'gameService', 'stateService', 'gameLogic', 'aiService',
-//     'resizeGameAreaService', '$translate', 'dragAndDropService',
-//     function ($rootScope:any, $scope:any, $log:any, $timeout:any,
-//       gameService:any, stateService:any, gameLogic:any, aiService:any,
-//       resizeGameAreaService:any, $translate:any, dragAndDropService:any) {
-// }]);
 angular.module('myApp', ['ngTouch', 'ui.bootstrap', 'gameServices'])
     .run(function () {
     $rootScope['game'] = game;

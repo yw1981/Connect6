@@ -5,7 +5,7 @@ module gameLogic {
   'use strict';
 
   /** Returns the initial Connect6 board, which is a 19x19 matrix containing ''. */
-  export function getInitialBoard() {
+  export function getInitialBoard() : string[][]{
     return [['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -28,7 +28,7 @@ module gameLogic {
   }
 
   /** Returns an object contains come game data including the winner */
-  export function getInitialGameData() {
+  export function getInitialGameData():IGameData {
     return {
       totalMove: 0,
       winner: '',
@@ -37,7 +37,7 @@ module gameLogic {
   }
 
   /** Return true if the game ended in a tie when there is no empty cells */
-  function isTie(gameData:any) {
+  function isTie(gameData:IGameData) {
     //reserved for checking tie
     /*var i, j;
     for (i = 0; i < 19; i++) {
@@ -54,8 +54,8 @@ module gameLogic {
    * Return true if there this move can win the game.
    *  A move that can win the game is the move that connects more than 6 pieces.
    */
-  function isWinner(board:any, row:any, col:any, cur:any) {
-    var i:any, j:any;
+  function isWinner(board:string[][], row:number, col:number, cur:string) {
+    var i:number, j:number;
     //check col
     i = row - 1;
     j = row + 1;
@@ -116,8 +116,8 @@ module gameLogic {
    * Return true if there this move can cause threats such as four in a row
    * or five in a row.
    */
-  function isThreat(board:any, row:any, col:any, cur:any){
-    var i:any, j:any, diff:any, count = 0;
+  function isThreat(board:string[][], row:number, col:number, cur:string){
+    var i:number, j:number, diff:number, count = 0;
     //check col
     i = row - 1;
     j = row + 1;
@@ -204,7 +204,7 @@ module gameLogic {
    * Returns the move that should be performed when player
    * with index turnIndexBeforeMove makes a move in cell row X col.
    */
-  export function createMove(board:any, row:any, col:any, turnIndexBeforeMove:any, gameData:any) {
+  export function createMove(board:string[][], row:number, col:number, turnIndexBeforeMove:number, gameData:IGameData) {
     if (board === undefined) {
       board = getInitialBoard();
     }
@@ -222,8 +222,8 @@ module gameLogic {
 
     var boardAfterMove = angular.copy(board);
     var gameDataAfterMove = angular.copy(gameData);
-    var firstOperation:any;
-    var winner:any;
+    var firstOperation:IOperation;
+    var winner:string;
 
     //Player has two moves each turn, thus give first two moves to 'X' and the other two as 'O'
     //Each turn increase move index and mod 4.
@@ -252,12 +252,12 @@ module gameLogic {
    * Returns all the possible moves for the given board and turnIndexBeforeMove.
    * Returns an empty array if the game is over.
    */
-  export function getDifferentMoves(board:any, turnIndexBeforeMove:any, delta:any, gameData:any) {
-    var possibleMoves:any = [];
-    var winningMoves:any = []; // moves can lead to win
-    var threatMoves:any = [];  // moves can lead opponent to win
-    var twoThreeMoves:any = [];
-    var oppTwoThreeMoves:any = [];
+  export function getDifferentMoves(board:string[][], turnIndexBeforeMove:number, delta:IDelta, gameData:IGameData) {
+    var possibleMoves:IMove[] = [];
+    var winningMoves:IMove[] = []; // moves can lead to win
+    var threatMoves:IMove[] = [];  // moves can lead opponent to win
+    var twoThreeMoves:IMove[] = [];
+    var oppTwoThreeMoves:IMove[] = [];
 
     if(delta === undefined) {
       delta = {row : 9, col : 8};
@@ -301,19 +301,19 @@ module gameLogic {
     };
   }
 
-  export function getPossibleMoves(board:any, turnIndexBeforeMove:any, delta:any, gameData:any) {
+  export function getPossibleMoves(board:string[][], turnIndexBeforeMove:number, delta:IDelta, gameData:IGameData) {
     var allMoves = getDifferentMoves(board, turnIndexBeforeMove, delta, gameData);
     return allMoves.winMoves.concat(allMoves.threatMoves.concat(allMoves.possibleMoves));
   }
 
-  function addMove(row:any, col:any, board:any, turnIndexBeforeMove:any, gameData:any,
-    winningMoves:any, threatMoves:any, possibleMoves:any, oppTwoThreeMoves:any, twoThreeMoves:any) {
+  function addMove(row:number, col:number, board:string[][], turnIndexBeforeMove:number, gameData:IGameData,
+    winningMoves:IMove[], threatMoves:IMove[], possibleMoves:IMove[], oppTwoThreeMoves:IMove[], twoThreeMoves:IMove[]) {
     if (row < 0 || row > 18 || col < 0 || col > 18) {
       return ;
     }
-    var move:any;
-    var oppoPiece = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
-    var piece = turnIndexBeforeMove === 0 ? 'X' : 'O';
+    var move:IMove;
+    var oppoPiece:string = turnIndexBeforeMove === 0 ? 'O' : 'X'; // pretend this is opponent's move
+    var piece:string = turnIndexBeforeMove === 0 ? 'X' : 'O';
     try {
       move = createMove(board, row, col, turnIndexBeforeMove, gameData);
       var oppThreat = isThreat(board, row, col, oppoPiece);
@@ -334,7 +334,7 @@ module gameLogic {
     }
   }
 
-  export function isMoveOk(params:any) {
+  export function isMoveOk(params:IUpdateUI) {
     var move = params.move;
     var turnIndexBeforeMove = params.turnIndexBeforeMove;
     var stateBeforeMove = params.stateBeforeMove;
@@ -355,13 +355,4 @@ module gameLogic {
     return true;
   }
 
-  // return {
-  //   getInitialBoard: getInitialBoard,
-  //   getInitialGameData: getInitialGameData,
-  //   getPossibleMoves: getPossibleMoves,
-  //   getDifferentMoves: getDifferentMoves,
-  //   createMove: createMove,
-  //   isMoveOk: isMoveOk
-  // };
-// });
 }

@@ -7,10 +7,10 @@ module game {
     export let cols = getIntegersTill(colsNum);
     var canMakeMove = false;
     var isComputerTurn = false;
-    var state:any = null;
-    var turnIndex:any = null;
-    var turnIndexBefore:any = null;
-    var playMode:any = null;
+    var state:IState = null;
+    var turnIndex:number = null;
+    var turnIndexBefore:number = null;
+    var playMode:PlayMode = null;
     var animationEnded = true;
 
     'use strict';
@@ -51,7 +51,7 @@ module game {
     }
 
 
-    function updateUI(params:any) {
+    function updateUI(params:IUpdateUI) {
       animationEnded = false;
       state = params.stateAfterMove;
       playMode = params.playMode;
@@ -83,7 +83,7 @@ module game {
 
     //window.e2e_test_stateService = stateService;
 
-    export function cellClicked (row:any, col:any) {
+    export function cellClicked (row:number, col:number) {
       log.info(["Clicked on cell:", row, col]);
       if (!canMakeMove) {
         return;
@@ -98,18 +98,18 @@ module game {
       }
     };
 
-    export function shouldShowImage (row:any, col:any) {
+    export function shouldShowImage (row:number, col:number) {
       var cell = state.board[row][col];
       return cell !== "";
     };
 
-    export function getImageSrc (row:any, col:any) {
+    export function getImageSrc (row:number, col:number) {
       var cell = state.board[row][col];
       return cell === "X" ? "imgsrc/black.png"
           : cell === "O" ? "imgsrc/white.png" : "";
     };
 
-    function shouldSlowlyAppear (row:any, col:any) {
+    function shouldSlowlyAppear (row:number, col:number) {
       var valid = !animationEnded && state.delta !== undefined && state.delta.row === row &&
           state.delta.col === col;
       return valid &&
@@ -119,26 +119,26 @@ module game {
           playMode === "playWhite" && turnIndexBefore === 0);
     }
 
-    function shouldAnimation (row:any, col:any) {
+    function shouldAnimation (row:number, col:number) {
       var valid = !animationEnded && state.delta !== undefined && state.delta.row === row &&
           state.delta.col === col;
       return valid && !shouldSlowlyAppear(row, col);
     }
 
-    export function getClass (row:any, col:any) {
+    export function getClass (row:number, col:number) {
       return {piece : true, animation: shouldAnimation(row, col),
           slowlyAppear: shouldSlowlyAppear(row, col)};
     };
 
-    function getIntegersTill(number:any) {
-      var res:any = [];
+    function getIntegersTill(number:number) {
+      var res:number[]= [];
       for (var i = 0; i < number; i++) {
         res.push(i);
       }
       return res;
     }
 
-    export function handleDragEvent(type:any, clientX:any, clientY:any) {
+    export function handleDragEvent(type:string, clientX:number, clientY:number) {
       log.info("handleDragEvent", canMakeMove, animationEnded, type, clientX, clientY);
       //if not your turn, dont handle event
       if (!canMakeMove || !animationEnded) {
@@ -217,17 +217,6 @@ module game {
   }
 
 
-
-
-// angular.module('myApp')
-//   .controller('Ctrl', ['$rootScope', '$scope', '$log', '$timeout',
-//     'gameService', 'stateService', 'gameLogic', 'aiService',
-//     'resizeGameAreaService', '$translate', 'dragAndDropService',
-//     function ($rootScope:any, $scope:any, $log:any, $timeout:any,
-//       gameService:any, stateService:any, gameLogic:any, aiService:any,
-//       resizeGameAreaService:any, $translate:any, dragAndDropService:any) {
-
-// }]);
 
 angular.module('myApp',  ['ngTouch', 'ui.bootstrap', 'gameServices'])
   .run(function() {

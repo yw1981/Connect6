@@ -1,6 +1,3 @@
-// angular.module('myApp').factory('aiService',
-//   ["alphaBetaService", "gameLogic",
-//     function (alphaBetaService:any, gameLogic:any) {
 var aiService;
 (function (aiService) {
     'use strict';
@@ -106,4 +103,3 @@ var aiService;
     }
     aiService.createComputerMove = createComputerMove;
 })(aiService || (aiService = {}));
-// }]);
