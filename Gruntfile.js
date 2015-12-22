@@ -156,7 +156,7 @@ module.exports = function(grunt) {
     processhtml: {
       dist: {
         files: {
-          'dist/index.min.html': ['index.html']
+          'app/game.min.html': ['app/game.html']
         }
       }
     },
@@ -216,15 +216,13 @@ module.exports = function(grunt) {
     },
   });
 
-  grunt.loadNpmTasks('grunt-autoprefixer');
   require('load-grunt-tasks')(grunt);
 
   // Default task(s).
   grunt.registerTask('default', [
-      'karma',
       'copy',
       'concat', 'postcss', 'uglify',
       'processhtml', 'manifest',
-      'http-server', 'protractor']);
+      'http-server']);
 
 };
